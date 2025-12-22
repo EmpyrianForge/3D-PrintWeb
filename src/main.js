@@ -10,9 +10,15 @@ const canvas = document.querySelector("#experience-canvas");
 const sizes = {
     width: window.innerWidth,
     height: window.innerHeight
-}
+};
 
+const zAxisFans = [];
+const yAxisFans = [];
 
+const raycasterObjects = [];
+
+const raycaster = new THREE.Raycaster();
+const pointer = new THREE.Vector2();
 
 // Loaders
 const textureLoader = new THREE.TextureLoader();
@@ -120,6 +126,12 @@ const videoTexture = new THREE.VideoTexture(videoElement);
 videoTexture.colorSpace = THREE.SRGBColorSpace;
 videoTexture.flipY = false;
 
+window.addEventListener("mousemove", (e) => {
+  pointer.x = (e.clientX / window.innerWidth) * 2 - 1;
+  pointer.y = -(e.clientY / window.innerHeight) * 2 + 1;
+});
+  
+
 loader.load("/models/Roomtest-v1.glb", (glb) => {
   glb.scene.traverse((child) => {
     if (child.isMesh) {
@@ -153,6 +165,17 @@ loader.load("/models/Roomtest-v1.glb", (glb) => {
           });
 
           child.material = material;
+
+          if (child.name.includes("Fan")) {
+            if (
+              child.name.includes("Fan_2") ||
+              child.name.includes("Fan_4")
+            ) {
+              yAxisFans.push(child);
+            } else {
+              zAxisFans.push(child);
+            }
+          }
 
           if (child.material.map) {
             child.material.map.minFilter = THREE.LinearFilter;
@@ -275,6 +298,30 @@ const render = () => {
     //console.log("00000000000000");
     //console.log(controls.target);
     
+
+    //Animate Fans
+    zAxisFans.forEach((fan) => {
+        fan.rotation.z -= 0.1;  
+    });
+
+    yAxisFans.forEach((fan) => {
+        fan.rotation.y -= 0.1;  
+    });
+
+    //Raycaster in blender called  with ID __Raycaster
+    raycaster.setFromCamera(pointer, camera);
+    const intersects = raycaster.intersectObjects(raycasterObjects);  
+
+    for (let i = 0; i < intersects.length; i++) {
+      intersects[i].object.material.color.set(0xff0000);
+    } 
+
+    if(intersects.length>0){
+      document.body.style.cursor = 'pointer';
+    } else {
+      document.body.style.cursor = 'default';
+    }
+
     renderer.render( scene, camera );
     renderer.setClearColor(0x222222);
 
