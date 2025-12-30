@@ -3,7 +3,7 @@ import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { DRACOLoader } from 'three/addons/loaders/DRACOLoader.js';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
-import { texture } from 'three/tsl';
+import gsap from "gsap";
 
 
 const canvas = document.querySelector("#experience-canvas");
@@ -12,10 +12,57 @@ const sizes = {
     height: window.innerHeight
 };
 
+const modals = {
+  work:document.querySelector(".modal.work"),
+  about:document.querySelector(".modal.about"),
+  contact:document.querySelector(".modal.contact"),
+};
+
+document.querySelectorAll(".modal-exit-button").forEach((button) => {
+  button.addEventListener("click", (e) => {
+    const modal = e.target.closest(".modal");
+    hideModal(modal);
+  });
+});
+
+const showModal = (modal) => {
+  modal.style.display = "block";
+
+  gsap.set(modal, {opacity:0});
+  gsap.to(modal, {
+    opacity:1,
+    duration:0.5,
+  });
+};
+
+const hideModal = (modal) => {
+  gsap.to(modal, {
+    opacity:0,
+    duration:0.5,
+    onComplete: () => {
+      modal.style.display = "none";
+    }
+  });
+};
+
 const zAxisFans = [];
 const yAxisFans = [];
 
 const raycasterObjects = [];
+//Main try
+let currentIntersects = [];
+//______________
+let previousHover = null;
+//My Fix
+let hoveredObjects = [];
+//______________
+
+
+const socialLinks = {
+    "InstaButton": "https://www.instagram.com",
+    "GitHubFront": "https://github.com",
+    "MakerWorldButton": "https://www.makerworld.com",
+}
 
 const raycaster = new THREE.Raycaster();
 const pointer = new THREE.Vector2();
@@ -73,7 +120,7 @@ const textureMap = {
         day:"/textures/6bake.webp"
     },
     Seven: {
-        day:"/textures/bake.webp"
+        day:"/textures/7-bake.webp"
     },
 };
 
@@ -102,12 +149,12 @@ const glassMaterial = new THREE.MeshPhysicalMaterial({
 });
 
 //________________________H2C Test_________________________
-const glassGreen = new THREE.MeshPhysicalMaterial({
-    color: 0x088223FF,
+const Glass_Green = new THREE.MeshPhysicalMaterial({
+    color: 0x2D9114,
     metalness: 0,
     roughness: 0,
     transparent: true,
-    opacity: 0.25,
+    opacity: 1,
     ior: 1.5,
     envMap: enviromentMap,
     transmission: 1,
@@ -136,13 +183,40 @@ window.addEventListener("mousemove", (e) => {
   pointer.x = (e.clientX / window.innerWidth) * 2 - 1;
   pointer.y = -(e.clientY / window.innerHeight) * 2 + 1;
 });
-  
 
-loader.load("/models/RoomUP-v1.glb", (glb) => {
+window.addEventListener("click", (e) => {
+  if ( currentIntersects.length > 0 ) {
+    const object = currentIntersects[0].object;
+
+    Object.entries(socialLinks).forEach(([key, url]) => {
+      if (object.name.includes(key)) {
+        const newWindow = window.open();
+        newWindow.opener = null;
+        newWindow.location = url;
+        newWindow.target = "_blank";
+        newWindow.rel= "noopener noreferrer";
+      }
+    });
+
+    if (object.name.includes("Shield_MyWork")) {
+      showModal(modals.work);
+    } else if (object.name.includes("Shield_About")) {
+      showModal(modals.about);
+    } else if (object.name.includes("Shield_Contact")) {
+      showModal(modals.contact);
+  }
+}
+});
+
+
+loader.load("/models/RoomUP-1-v1.glb", (glb) => {
   glb.scene.traverse((child) => {
     if (child.isMesh) {
-            if (child.name.includes("Water")) {
-      child.material = new THREE.MeshPhysicalMaterial({
+      if (child.name.includes("__Raycaster")) {
+          raycasterObjects.push(child);
+        }
+      if (child.name.includes("Water")) {
+        child.material = new THREE.MeshPhysicalMaterial({
         color: 0x55B8C8,
         metalness: 0,
         roughness: 0,
@@ -154,8 +228,8 @@ loader.load("/models/RoomUP-v1.glb", (glb) => {
     }else if (child.name.includes("Glass")) {
       child.material = glassMaterial;
       //________________________H2C Test_________________________
-    }else if (child.name.includes("GlassGreen")) {
-      child.material = glassGreen; 
+    }else if (child.name.includes("Green")) {
+      child.material = Glass_Green; 
       //________________________H2C Test_________________________ 
     }else if (child.name.includes("White")) {
       child.material = whiteMaterial;
@@ -296,43 +370,54 @@ window.addEventListener('resize', () => {
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     
 });
+//////////_____________________________________________
+
 
 const render = () => {
-    controls.update();
+  controls.update();
+  zAxisFans.forEach((fan) => { fan.rotation.z -= 0.1; });
+  yAxisFans.forEach((fan) => { fan.rotation.y -= 0.1; });
 
-    //console.log(camera.position);
-    //console.log("00000000000000");
-    //console.log(controls.target);
-    
+  raycaster.setFromCamera(pointer, camera);
+  currentIntersects = raycaster.intersectObjects(raycasterObjects, true);
 
-    //Animate Fans
-    zAxisFans.forEach((fan) => {
-        fan.rotation.z -= 0.1;  
-    });
-
-    yAxisFans.forEach((fan) => {
-        fan.rotation.y -= 0.1;  
-    });
-
-    //Raycaster in blender called  with ID __Raycaster
-    raycaster.setFromCamera(pointer, camera);
-    const intersects = raycaster.intersectObjects(raycasterObjects);  
-
-    for (let i = 0; i < intersects.length; i++) {
-      intersects[i].object.material.color.set(0xff0000);
-    } 
-
-    if(intersects.length>0){
-      document.body.style.cursor = 'pointer';
-    } else {
-      document.body.style.cursor = 'default';
+  // 1. ALLE vorherigen zurücksetzen
+  hoveredObjects.forEach(obj => {
+    if (obj.userData.originalMaterial) {
+      obj.material = obj.userData.originalMaterial;
     }
+  });
+  hoveredObjects = [];
 
-    renderer.render( scene, camera );
-    renderer.setClearColor(0x222222);
+  // 2. NUR Raycaster-Objekte + MATERIAL KLONEN!
+  currentIntersects.forEach(intersect => {
+    const obj = intersect.object;
+    
+    if (raycasterObjects.includes(obj)) {
+      // ORIGINAL MATERIAL speichern
+      if (!obj.userData.originalMaterial) {
+        obj.userData.originalMaterial = obj.material.clone(); // KLONEN!
+      }
+      
+      // NEUES Material für Hover
+      //const hoverMaterial = obj.userData.originalMaterial.clone();
+      //hoverMaterial.color.set(0xff0000);
+      //obj.material = hoverMaterial;
+      
+      hoveredObjects.push(obj);
+    }
+  });
 
+  document.body.style.cursor = hoveredObjects.some(obj => 
+    obj.name.includes("Pointer")
+  ) ? "pointer" : "default";
 
-    window.requestAnimationFrame( render );
-}
+  
+
+  renderer.render(scene, camera);
+  renderer.setClearColor(0x222222);
+  window.requestAnimationFrame(render);
+};
+
 
 render()
