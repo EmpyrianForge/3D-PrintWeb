@@ -184,6 +184,24 @@ window.addEventListener("mousemove", (e) => {
   pointer.y = -(e.clientY / window.innerHeight) * 2 + 1;
 });
 
+
+
+window.addEventListener("touchstart", (e) => {
+  e.preventDefault();
+  pointer.x = (e.touches[0].clientX / window.innerWidth) * 2 - 1;
+  pointer.y = -(e.touches[0].clientY / window.innerHeight) * 2 + 1;
+}, {passive: false});
+
+window.addEventListener("touchend", (e) => {
+  e.preventDefault();
+  handleRaycasterInteraction();
+}, {passive: false});
+
+function handleRaycasterInteraction() {
+  
+}
+
+
 window.addEventListener("click", (e) => {
   if ( currentIntersects.length > 0 ) {
     const object = currentIntersects[0].object;
