@@ -1,21 +1,20 @@
-import './style.scss'
-import * as THREE from 'three';
-import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
-import { DRACOLoader } from 'three/addons/loaders/DRACOLoader.js';
-import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+import "./style.scss";
+import * as THREE from "three";
+import { OrbitControls } from "three/addons/controls/OrbitControls.js";
+import { DRACOLoader } from "three/addons/loaders/DRACOLoader.js";
+import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 import gsap from "gsap";
-
 
 const canvas = document.querySelector("#experience-canvas");
 const sizes = {
-    width: window.innerWidth,
-    height: window.innerHeight
+  width: window.innerWidth,
+  height: window.innerHeight,
 };
 
 const modals = {
-  work:document.querySelector(".modal.work"),
-  about:document.querySelector(".modal.about"),
-  contact:document.querySelector(".modal.contact"),
+  work: document.querySelector(".modal.work"),
+  about: document.querySelector(".modal.about"),
+  contact: document.querySelector(".modal.contact"),
 };
 
 document.querySelectorAll(".modal-exit-button").forEach((button) => {
@@ -28,20 +27,20 @@ document.querySelectorAll(".modal-exit-button").forEach((button) => {
 const showModal = (modal) => {
   modal.style.display = "block";
 
-  gsap.set(modal, {opacity:0});
+  gsap.set(modal, { opacity: 0 });
   gsap.to(modal, {
-    opacity:1,
-    duration:0.5,
+    opacity: 1,
+    duration: 0.5,
   });
 };
 
 const hideModal = (modal) => {
   gsap.to(modal, {
-    opacity:0,
-    duration:0.5,
+    opacity: 0,
+    duration: 0.5,
     onComplete: () => {
       modal.style.display = "none";
-    }
+    },
   });
 };
 
@@ -57,12 +56,11 @@ let previousHover = null;
 let hoveredObjects = [];
 //______________
 
-
 const socialLinks = {
-    "InstaButton": "https://www.instagram.com",
-    "GitHubFront": "https://github.com",
-    "MakerWorldButton": "https://www.makerworld.com",
-}
+  InstaButton: "https://www.instagram.com",
+  GitHubFront: "https://github.com",
+  MakerWorldButton: "https://www.makerworld.com",
+};
 
 const raycaster = new THREE.Raycaster();
 const pointer = new THREE.Vector2();
@@ -87,83 +85,74 @@ loader.setDRACOLoader(dracoLoader);
 //});
 ////________________H2C Test_______________________
 
-
 const enviromentMap = new THREE.CubeTextureLoader()
-    .setPath("/textures/skybox/")
-    .load([
-        "px.webp",
-        "nx.webp",
-        "py.webp",
-        "ny.webp",
-        "pz.webp",
-        "nz.webp",
-    ]);
-
+  .setPath("/textures/skybox/")
+  .load(["px.webp", "nx.webp", "py.webp", "ny.webp", "pz.webp", "nz.webp"]);
 
 const textureMap = {
-    First: {
-        day:"/textures/1bakeake.webp"
-    },
-    Second: {
-        day:"/textures/2bake.webp"
-    },
-    Third: {
-        day:"/textures/3bake.webp"
-    },
-    Fourth: {
-        day:"/textures/4bake.webp"
-    },
-    Fifth: {
-        day:"/textures/5bake.webp"
-    },
-    Six: {
-        day:"/textures/6bake.webp"
-    },
-    Seven: {
-        day:"/textures/7-bake.webp"
-    },
+  First: {
+    day: "/textures/1bakeake.webp",
+  },
+  Second: {
+    day: "/textures/2bake.webp",
+  },
+  Third: {
+    day: "/textures/3bake.webp",
+  },
+  Fourth: {
+    day: "/textures/4bake.webp",
+  },
+  Fifth: {
+    day: "/textures/5bake.webp",
+  },
+  Six: {
+    day: "/textures/6bake.webp",
+  },
+  Seven: {
+    day: "/textures/7-bake.webp",
+  },
 };
 
 const loadedTextures = {
-    day: {},
+  day: {},
 };
 
 Object.entries(textureMap).forEach(([key, paths]) => {
-    const dayTexture = textureLoader.load(paths.day);
-    dayTexture.flipY = false;
-    dayTexture.colorSpace = THREE.SRGBColorSpace;
-    loadedTextures.day[key] = dayTexture;
+  const dayTexture = textureLoader.load(paths.day);
+  dayTexture.flipY = false;
+  dayTexture.colorSpace = THREE.SRGBColorSpace;
+  loadedTextures.day[key] = dayTexture;
 });
 
 const glassMaterial = new THREE.MeshPhysicalMaterial({
-    color: 0xffffff,
-    metalness: 0,
-    roughness: 0,
-    transparent: true,
-    opacity: 0.25,
-    ior: 1.5,
-    envMap: enviromentMap,
-    transmission: 1,
-    thickness: 0.1,
-    depthWrite: false,
+  color: 0xffffff,
+  metalness: 0,
+  roughness: 0,
+  transparent: true,
+  opacity: 0.25,
+  ior: 1.5,
+  envMap: enviromentMap,
+  transmission: 1,
+  thickness: 0.1,
+  depthWrite: false,
 });
 
 //________________________H2C Test_________________________
 const Glass_Green = new THREE.MeshPhysicalMaterial({
-    color: 0x2D9114,
-    metalness: 0,
-    roughness: 0,
-    transparent: true,
-    opacity: 1,
-    ior: 1.5,
-    envMap: enviromentMap,
-    transmission: 1,
-    thickness: 0.1,
-    depthWrite: false,
+  color: 0x2d9114,
+  metalness: 0,
+  roughness: 0,
+  transparent: true,
+  opacity: 1,
+  ior: 1.5,
+  envMap: enviromentMap,
+  transmission: 1,
+  thickness: 0.1,
+  depthWrite: false,
 });
 //________________________H2C Test_________________________
 const whiteMaterial = new THREE.MeshPhysicalMaterial({
-    color: 0xffffff,
+  color: 0xffffff,
 });
 
 //const videoElement = document.createElement("video");
@@ -184,26 +173,29 @@ window.addEventListener("mousemove", (e) => {
   pointer.y = -(e.clientY / window.innerHeight) * 2 + 1;
 });
 
+window.addEventListener(
+  "touchstart",
+  (e) => {
+    e.preventDefault();
+    pointer.x = (e.touches[0].clientX / window.innerWidth) * 2 - 1;
+    pointer.y = -(e.touches[0].clientY / window.innerHeight) * 2 + 1;
+  },
+  { passive: false }
+);
 
+window.addEventListener(
+  "touchend",
+  (e) => {
+    e.preventDefault();
+    handleRaycasterInteraction();
+  },
+  { passive: false }
+);
 
-window.addEventListener("touchstart", (e) => {
-  e.preventDefault();
-  pointer.x = (e.touches[0].clientX / window.innerWidth) * 2 - 1;
-  pointer.y = -(e.touches[0].clientY / window.innerHeight) * 2 + 1;
-}, {passive: false});
-
-window.addEventListener("touchend", (e) => {
-  e.preventDefault();
-  handleRaycasterInteraction();
-}, {passive: false});
-
-function handleRaycasterInteraction() {
-  
-}
-
+function handleRaycasterInteraction() {}
 
 window.addEventListener("click", (e) => {
-  if ( currentIntersects.length > 0 ) {
+  if (currentIntersects.length > 0) {
     const object = currentIntersects[0].object;
 
     Object.entries(socialLinks).forEach(([key, url]) => {
@@ -212,7 +204,7 @@ window.addEventListener("click", (e) => {
         newWindow.opener = null;
         newWindow.location = url;
         newWindow.target = "_blank";
-        newWindow.rel= "noopener noreferrer";
+        newWindow.rel = "noopener noreferrer";
       }
     });
 
@@ -222,82 +214,79 @@ window.addEventListener("click", (e) => {
       showModal(modals.about);
     } else if (object.name.includes("Shield_Contact")) {
       showModal(modals.contact);
+    }
   }
-}
 });
-
 
 loader.load("/models/RoomUP-1-v1.glb", (glb) => {
   glb.scene.traverse((child) => {
     if (child.isMesh) {
       if (child.name.includes("__Raycaster")) {
-          raycasterObjects.push(child);
-        }
+        raycasterObjects.push(child);
+      }
       if (child.name.includes("Water")) {
         child.material = new THREE.MeshPhysicalMaterial({
-        color: 0x55B8C8,
-        metalness: 0,
-        roughness: 0,
-        transparent: true,
-        opacity: 0.6,
-        ior: 1.33,
-        depthWrite: false,
-      });
-    }else if (child.name.includes("Glass")) {
-      child.material = glassMaterial;
-      //________________________H2C Test_________________________
-    }else if (child.name.includes("Green")) {
-      child.material = Glass_Green; 
-      //________________________H2C Test_________________________ 
-    }else if (child.name.includes("White")) {
-      child.material = whiteMaterial;
-    }else if (child.name.includes("Screen")) {
-      child.material = new THREE.MeshPhysicalMaterial({
-        //map: VideoTexture,
-      });
-    } else{
-    Object.keys(textureMap).forEach((key) => {
-        if (child.name.includes(key)) {
-          const material = new THREE.MeshBasicMaterial({
-            map: loadedTextures.day[key],
-          });
+          color: 0x55b8c8,
+          metalness: 0,
+          roughness: 0,
+          transparent: true,
+          opacity: 0.6,
+          ior: 1.33,
+          depthWrite: false,
+        });
+      } else if (child.name.includes("Glass")) {
+        child.material = glassMaterial;
+        //________________________H2C Test_________________________
+      } else if (child.name.includes("Green")) {
+        child.material = Glass_Green;
+        //________________________H2C Test_________________________
+      } else if (child.name.includes("White")) {
+        child.material = whiteMaterial;
+      } else if (child.name.includes("Screen")) {
+        child.material = new THREE.MeshPhysicalMaterial({
+          //map: VideoTexture,
+        });
+      } else {
+        Object.keys(textureMap).forEach((key) => {
+          if (child.name.includes(key)) {
+            const material = new THREE.MeshBasicMaterial({
+              map: loadedTextures.day[key],
+            });
 
-          child.material = material;
+            child.material = material;
 
-          if (child.name.includes("Fan")) {
-            if (
-              child.name.includes("Fan_2") ||
-              child.name.includes("Fan_4")
-            ) {
-              yAxisFans.push(child);
-            } else {
-              zAxisFans.push(child);
+            if (child.name.includes("Fan")) {
+              if (
+                child.name.includes("Fan_2") ||
+                child.name.includes("Fan_4")
+              ) {
+                yAxisFans.push(child);
+              } else {
+                zAxisFans.push(child);
+              }
+            }
+
+            if (child.material.map) {
+              child.material.map.minFilter = THREE.LinearFilter;
             }
           }
-
-          if (child.material.map) {
-            child.material.map.minFilter = THREE.LinearFilter;
-          }
-        }
-      });
-    }
+        });
+      }
     }
   });
 
   scene.add(glb.scene);
-  glb.scene.scale.set(0.01, 0.01, 0.01);   // 50% Größe // oder
-  glb.scene.scale.setScalar(.01);        // Gleichmäßig auf 3.3 passt perfekt mir import H2C
+  glb.scene.scale.set(0.01, 0.01, 0.01); // 50% Größe // oder
+  glb.scene.scale.setScalar(0.01); // Gleichmäßig auf 3.3 passt perfekt mir import H2C
   //camera.position.z = 45;                // Kamera weiter weg
 });
-
-
 
 //______________H2C Test_________________________
 //EXPERIMENTAL H2C LOADING WITH SCALING AND CENTERING
 
 //loader.load("/models/Test.glb", (glb) => {
 //  const h2c = glb.scene;
-//  
+//
 //
 //  // 1. Bounding Box auslesen
 //  const box = new THREE.Box3().setFromObject(h2c);
@@ -338,69 +327,67 @@ loader.load("/models/RoomUP-1-v1.glb", (glb) => {
 //  scene.add(h2c);
 //});
 
-
-
 //______________H2C Test_________________________
 //EXPERIMENT ENDE
 
-
-
-
-
 const scene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera(
-    45,
-    sizes.width / sizes.height,
-    0.1,
-    1000 
+  45,
+  sizes.width / sizes.height,
+  0.1,
+  1000
 );
 
-camera.position.set(109.35682075158908,35.704396522969226,-77.44092573698502)
+camera.position.set(109.35682075158908, 35.704396522969226, -77.44092573698502);
 
-const renderer = new THREE.WebGLRenderer({canvas: canvas, antialias: true});
-renderer.setSize( window.innerWidth, window.innerHeight );
-renderer.setPixelRatio( Math.min(window.devicePixelRatio, 2) );
-
+const renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true });
+renderer.setSize(window.innerWidth, window.innerHeight);
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 
 //const geometry = new THREE.BoxGeometry( 1, 1, 1 );
 //const material = new THREE.MeshBasicMaterial( { color: 0x00ff00 } );
 //const cube = new THREE.Mesh( geometry, material );
 //scene.add( cube );
 
-
-const controls = new OrbitControls( camera, renderer.domElement );
+const controls = new OrbitControls(camera, renderer.domElement);
 controls.enableDamping = true;
 controls.dampingFactor = 0.05;
-controls.target.set(-15.032524979835078,13.056863836526139,-11.60751480655244)
+controls.target.set(
+  -15.032524979835078,
+  13.056863836526139,
+  -11.60751480655244
+);
 controls.update();
 
 //Event Listener
-window.addEventListener('resize', () => {
-    sizes.width = window.innerWidth;
-    sizes.height = window.innerHeight;
+window.addEventListener("resize", () => {
+  sizes.width = window.innerWidth;
+  sizes.height = window.innerHeight;
 
-    //Update camera
-    //camera.aspect = sizes.width / sizes.height;
-    //camera.updateProjectionMatrix();
+  //Update camera
+  //camera.aspect = sizes.width / sizes.height;
+  //camera.updateProjectionMatrix();
 
-    // Update renderer
-    renderer.setSize(sizes.width, sizes.height);
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-    
+  // Update renderer
+  renderer.setSize(sizes.width, sizes.height);
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 });
 //////////_____________________________________________
 
-
 const render = () => {
   controls.update();
-  zAxisFans.forEach((fan) => { fan.rotation.z -= 0.1; });
-  yAxisFans.forEach((fan) => { fan.rotation.y -= 0.1; });
+  zAxisFans.forEach((fan) => {
+    fan.rotation.z -= 0.1;
+  });
+  yAxisFans.forEach((fan) => {
+    fan.rotation.y -= 0.1;
+  });
 
   raycaster.setFromCamera(pointer, camera);
   currentIntersects = raycaster.intersectObjects(raycasterObjects, true);
 
   // 1. ALLE vorherigen zurücksetzen
-  hoveredObjects.forEach(obj => {
+  hoveredObjects.forEach((obj) => {
     if (obj.userData.originalMaterial) {
       obj.material = obj.userData.originalMaterial;
     }
@@ -408,34 +395,33 @@ const render = () => {
   hoveredObjects = [];
 
   // 2. NUR Raycaster-Objekte + MATERIAL KLONEN!
-  currentIntersects.forEach(intersect => {
+  currentIntersects.forEach((intersect) => {
     const obj = intersect.object;
-    
+
     if (raycasterObjects.includes(obj)) {
       // ORIGINAL MATERIAL speichern
       if (!obj.userData.originalMaterial) {
         obj.userData.originalMaterial = obj.material.clone(); // KLONEN!
       }
-      
+
       // NEUES Material für Hover
       //const hoverMaterial = obj.userData.originalMaterial.clone();
       //hoverMaterial.color.set(0xff0000);
       //obj.material = hoverMaterial;
-      
+
       hoveredObjects.push(obj);
     }
   });
 
-  document.body.style.cursor = hoveredObjects.some(obj => 
+  document.body.style.cursor = hoveredObjects.some((obj) =>
     obj.name.includes("Pointer")
-  ) ? "pointer" : "default";
-
-  
+  )
+    ? "pointer"
+    : "default";
 
   renderer.render(scene, camera);
   renderer.setClearColor(0x222222);
   window.requestAnimationFrame(render);
 };
 
-
-render()
+render();
