@@ -17,8 +17,22 @@ const modals = {
   contact: document.querySelector(".modal.contact"),
 };
 
+let touchHappend = false;
 document.querySelectorAll(".modal-exit-button").forEach((button) => {
+  button.addEventListener(
+    "touchend",
+    (e) => {
+      touchHappend = true;
+      e.preventDefault();
+      const modal = e.target.closest(".modal");
+      hideModal(modal);
+    },
+    { passive: false }
+  );
+
   button.addEventListener("click", (e) => {
+    if (touchHappend) return;
+    e.preventDefault();
     const modal = e.target.closest(".modal");
     hideModal(modal);
   });
@@ -169,6 +183,7 @@ const whiteMaterial = new THREE.MeshPhysicalMaterial({
 //videoTexture.flipY = false;
 
 window.addEventListener("mousemove", (e) => {
+  touchHappend = false;
   pointer.x = (e.clientX / window.innerWidth) * 2 - 1;
   pointer.y = -(e.clientY / window.innerHeight) * 2 + 1;
 });
