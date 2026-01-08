@@ -14,7 +14,6 @@
   },
   "dependencies": {
     "gsap": "^3.14.1",
-    "sass-embedded": "^1.97.1",
     "three": "^0.182.0"
   }
 }
