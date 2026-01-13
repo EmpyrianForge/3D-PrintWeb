@@ -96,6 +96,11 @@ const socialLinks = {
 const raycaster = new THREE.Raycaster();
 const pointer = new THREE.Vector2();
 
+// Performance Optimierung: Raycaster nur bei Mausbewegung ausführen
+let isDragging = false;
+let lastPointerPos = { x: 0, y: 0 };
+let raycasterNeedsUpdate = true;
+
 // Loaders
 const textureLoader = new THREE.TextureLoader();
 
@@ -247,20 +252,33 @@ const glassMaterial = new THREE.MeshPhysicalMaterial({
   depthWrite: false,
 });
 
-//________________________H2C Test_________________________
+// Orange Glass Material für ResinFormlabs_Glass
+const orangeGlassMaterial = new THREE.MeshPhysicalMaterial({
+  color: 0xff8c00, // Orange
+  metalness: 0,
+  roughness: 0,
+  transparent: true,
+  opacity: 0.3, // Translucent
+  ior: 1.5,
+  envMap: enviromentMap,
+  transmission: 0.8,
+  thickness: 0.1,
+  depthWrite: false,
+});
+
+// Green Glass Material für H2C_Green
 const Glass_Green = new THREE.MeshPhysicalMaterial({
   color: 0x2d9114,
   metalness: 0,
   roughness: 0,
   transparent: true,
-  opacity: 1,
+  opacity: 0.8,
   ior: 1.5,
   envMap: enviromentMap,
   transmission: 1,
   thickness: 0.1,
   depthWrite: false,
 });
-//________________________H2C Test_________________________
 const whiteMaterial = new THREE.MeshPhysicalMaterial({
   color: 0xffffff,
 });
@@ -280,8 +298,15 @@ const whiteMaterial = new THREE.MeshPhysicalMaterial({
 
 window.addEventListener("mousemove", (e) => {
   touchHappend = false;
-  pointer.x = (e.clientX / window.innerWidth) * 2 - 1;
-  pointer.y = -(e.clientY / window.innerHeight) * 2 + 1;
+  const newPointerX = (e.clientX / window.innerWidth) * 2 - 1;
+  const newPointerY = -(e.clientY / window.innerHeight) * 2 + 1;
+  
+  // Nur Raycaster updaten wenn sich Maus wirklich bewegt hat
+  if (Math.abs(newPointerX - pointer.x) > 0.001 || Math.abs(newPointerY - pointer.y) > 0.001) {
+    pointer.x = newPointerX;
+    pointer.y = newPointerY;
+    raycasterNeedsUpdate = true;
+  }
 });
 
 window.addEventListener(
@@ -632,6 +657,15 @@ controls.target.set(
   13.056863836526139,
   -11.60751480655244
 );
+
+// Performance: Track dragging state
+controls.addEventListener('start', () => {
+  isDragging = true;
+});
+controls.addEventListener('end', () => {
+  isDragging = false;
+  raycasterNeedsUpdate = true; // Raycaster nach Drag neu auslösen
+});
 controls.update();
 
 //Event Listener
@@ -658,38 +692,30 @@ const render = () => {
     fan.rotation.y -= 0.1;
   });
 
-  raycaster.setFromCamera(pointer, camera);
-  currentIntersects = raycaster.intersectObjects(scene.children, true);
+  // Performance: Raycaster nur ausführen wenn nicht dragging und Update benötigt
+  if (!isDragging && raycasterNeedsUpdate) {
+    raycaster.setFromCamera(pointer, camera);
+    currentIntersects = raycaster.intersectObjects(raycasterObjects, false); // Nur relevante Objekte checken
+    raycasterNeedsUpdate = false;
+  }
 
-  // Aktuell gehoverte ermitteln
+// Aktuell gehoverte ermitteln (nur wenn nicht dragging)
   const currentHovered = new Set();
-  currentIntersects.forEach((intersect) => {
-    const obj = intersect.object;
-    if (raycasterObjects.includes(obj) || obj.name.includes("_Hover")) {
-      currentHovered.add(obj);
-      activeHoverObjects.add(obj); // Zum Tracking hinzufügen
-    }
-  });
+  if (!isDragging) {
+    currentIntersects.forEach((intersect) => {
+      const obj = intersect.object;
+      if (obj.name.includes("_Hover")) {
+        currentHovered.add(obj);
+        activeHoverObjects.add(obj);
+      }
+    });
+  }
 
   // 1. ALLE aktiven Hover-Objekte resetten/animieren
   activeHoverObjects.forEach((obj) => {
     const isHovered = currentHovered.has(obj);
 
-    // Material
-    if (isHovered) {
-      if (!obj.userData.originalMaterial) {
-        obj.userData.originalMaterial = obj.material.clone();
-      }
-      const hoverMaterial = obj.userData.originalMaterial.clone();
-      hoverMaterial.color.set(
-        obj.name.includes("_Hover") ? 0xffffff00 : 0xffffff00
-      );
-      obj.material = hoverMaterial;
-    } else {
-      if (obj.userData.originalMaterial) {
-        obj.material = obj.userData.originalMaterial;
-      }
-    }
+
 
     // Transform
     if (obj.userData.initialScale) {
