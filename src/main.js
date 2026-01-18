@@ -246,25 +246,28 @@ const enviromentMap = new THREE.CubeTextureLoader()
 
 const textureMap = {
   First: {
-    day: "/textures/1bakeake.webp",
+    day: "/images/1bake.webp",
   },
   Second: {
-    day: "/textures/2bake.webp",
+    day: "/images/2bake.webp",
   },
   Third: {
-    day: "/textures/3bake.webp",
+    day: "/images/3bake.webp",
   },
   Fourth: {
-    day: "/textures/4bake.webp",
+    day: "/images/4bake.webp",
   },
   Fifth: {
-    day: "/textures/5bake.webp",
+    day: "/images/5bakeverbesserungen.webp",
   },
   Six: {
-    day: "/textures/6bake.webp",
+    day: "/images/6bake.webp",
   },
   Seven: {
-    day: "/textures/7-bake.webp",
+    day: "/images/7-bake.webp",
+  },
+Eight: {
+    day: "/images/8bake.webp",
   },
 };
 
@@ -401,7 +404,7 @@ window.addEventListener("click", (e) => {
   }
 });
 
-loader.load("/models/Test-v1.glb", (glb) => {
+loader.load("/models/Porti-v1.glb", (glb) => {
   glb.scene.traverse((child) => {
     if (child.isMesh) {
 
