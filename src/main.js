@@ -41,6 +41,9 @@ document.querySelectorAll(".modal-exit-button").forEach((button) => {
 const showModal = (modal) => {
   modal.style.display = "block";
 
+  // Deaktiviere alle Hintergrundinteraktionen
+  disableBackgroundInteractions();
+
   gsap.set(modal, { opacity: 0 });
   gsap.to(modal, {
     opacity: 1,
@@ -54,6 +57,8 @@ const hideModal = (modal) => {
     duration: 0.5,
     onComplete: () => {
       modal.style.display = "none";
+      // Reaktiviere alle Hintergrundinteraktionen
+      enableBackgroundInteractions();
     },
   });
 };
@@ -88,8 +93,8 @@ let activeHoverObjects = new Set();
 let currentHoverObject = null;
 
 const socialLinks = {
-  InstaButton: "https://www.instagram.com",
-  GitHubFront: "https://github.com",
+  InstaButton: "https://www.instagram.com/empyrian_forge/",
+  GitHubFront: "https://github.com/EmpyrianForge",
   MakerWorldButton: "https://www.makerworld.com",
 };
 
@@ -100,6 +105,41 @@ const pointer = new THREE.Vector2();
 let isDragging = false;
 let lastPointerPos = { x: 0, y: 0 };
 let raycasterNeedsUpdate = true;
+
+// Hintergrundinteraktions-Status
+let isModalOpen = false;
+
+// Funktionen zum Deaktivieren/Aktivieren von Hintergrundinteraktionen
+const disableBackgroundInteractions = () => {
+  isModalOpen = true;
+  
+  // Deaktiviere OrbitControls
+  if (controls) {
+    controls.enabled = false;
+  }
+  
+  // Deaktiviere Raycaster
+  raycasterNeedsUpdate = false;
+  
+  // Setze alle Hover-Objekte zurück
+  activeHoverObjects.clear();
+  hoveredObjects = [];
+  
+  // Setze Cursor zurück
+  document.body.style.cursor = 'default';
+};
+
+const enableBackgroundInteractions = () => {
+  isModalOpen = false;
+  
+  // Reaktiviere OrbitControls
+  if (controls) {
+    controls.enabled = true;
+  }
+  
+  // Reaktiviere Raycaster
+  raycasterNeedsUpdate = true;
+};
 
 // Loaders
 const textureLoader = new THREE.TextureLoader();
@@ -253,7 +293,7 @@ const glassMaterial = new THREE.MeshPhysicalMaterial({
 });
 
 // Orange Glass Material für ResinFormlabs_Glass
-const orangeGlassMaterial = new THREE.MeshPhysicalMaterial({
+const Glass_Orange = new THREE.MeshPhysicalMaterial({
   color: 0xff8c00, // Orange
   metalness: 0,
   roughness: 0,
@@ -301,8 +341,8 @@ window.addEventListener("mousemove", (e) => {
   const newPointerX = (e.clientX / window.innerWidth) * 2 - 1;
   const newPointerY = -(e.clientY / window.innerHeight) * 2 + 1;
   
-  // Nur Raycaster updaten wenn sich Maus wirklich bewegt hat
-  if (Math.abs(newPointerX - pointer.x) > 0.001 || Math.abs(newPointerY - pointer.y) > 0.001) {
+  // Nur Raycaster updaten wenn sich Maus wirklich bewegt hat und kein Modal offen ist
+  if (!isModalOpen && (Math.abs(newPointerX - pointer.x) > 0.001 || Math.abs(newPointerY - pointer.y) > 0.001)) {
     pointer.x = newPointerX;
     pointer.y = newPointerY;
     raycasterNeedsUpdate = true;
@@ -313,8 +353,11 @@ window.addEventListener(
   "touchstart",
   (e) => {
     e.preventDefault();
-    pointer.x = (e.touches[0].clientX / window.innerWidth) * 2 - 1;
-    pointer.y = -(e.touches[0].clientY / window.innerHeight) * 2 + 1;
+    // Touch-Interaktion nur verarbeiten, wenn kein Modal offen ist
+    if (!isModalOpen) {
+      pointer.x = (e.touches[0].clientX / window.innerWidth) * 2 - 1;
+      pointer.y = -(e.touches[0].clientY / window.innerHeight) * 2 + 1;
+    }
   },
   { passive: false }
 );
@@ -323,7 +366,10 @@ window.addEventListener(
   "touchend",
   (e) => {
     e.preventDefault();
-    handleRaycasterInteraction();
+    // Touch-Interaktion nur verarbeiten, wenn kein Modal offen ist
+    if (!isModalOpen) {
+      handleRaycasterInteraction();
+    }
   },
   { passive: false }
 );
@@ -331,7 +377,8 @@ window.addEventListener(
 function handleRaycasterInteraction() {}
 
 window.addEventListener("click", (e) => {
-  if (currentIntersects.length > 0) {
+  // Nur Klick-Interaktionen verarbeiten, wenn kein Modal offen ist
+  if (!isModalOpen && currentIntersects.length > 0) {
     const object = currentIntersects[0].object;
 
     Object.entries(socialLinks).forEach(([key, url]) => {
@@ -436,7 +483,7 @@ loader.load("/models/Test-v1.glb", (glb) => {
         child.material = whiteMaterial;
       } else if (child.name.includes("Screen")) {
         child.material = new THREE.MeshPhysicalMaterial({
-          //map: VideoTexture,
+          
         });
       } else {
         Object.keys(textureMap).forEach((key) => {
@@ -468,8 +515,8 @@ loader.load("/models/Test-v1.glb", (glb) => {
   });
 
   scene.add(glb.scene);
-  glb.scene.scale.set(0.01, 0.01, 0.01); // 50% Größe // oder
-  glb.scene.scale.setScalar(0.01); // Gleichmäßig auf 3.3 passt perfekt mir import H2C
+  glb.scene.scale.set(0.01, 0.01, 0.01); 
+  glb.scene.scale.setScalar(0.01); 
   
 });
 
@@ -572,54 +619,7 @@ function playIntroAnimation() {
     "-=0.5"
   );
 }
-//______________H2C Test_________________________
-//EXPERIMENTAL H2C LOADING WITH SCALING AND CENTERING
 
-//loader.load("/models/Test.glb", (glb) => {
-//  const h2c = glb.scene;
-//
-//
-//  // 1. Bounding Box auslesen
-//  const box = new THREE.Box3().setFromObject(h2c);
-//  const size = new THREE.Vector3();
-//  box.getSize(size);
-//  console.log("H2c size BEFORE:", size);
-//
-//  // 2. Zielgröße festlegen, z.B. 1 Einheit in der größten Dimension
-//  const maxDimension = Math.max(size.x, size.y, size.z);
-//  const scaleFactor = 50 / maxDimension;   // passt größte Kante auf 1
-//
-//  h2c.scale.setScalar(scaleFactor);
-//
-//  // 3. Nach dem Skalieren noch einmal Box3 berechnen
-//  const box2 = new THREE.Box3().setFromObject(h2c);
-//  const size2 = new THREE.Vector3();
-//  box2.getSize(size2);
-//  console.log("H2c size AFTER:", size2);
-//
-//  // 4. Mittelpunkt auf (0,0,0) setzen
-//  const center = new THREE.Vector3();
-//  box2.getCenter(center);
-//  h2c.position.sub(center);
-//
-//  // nach dem Skalieren und Center-Shift
-//h2c.position.set(0, 0, 0);      // erstmal Ursprung
-//scene.add(h2c);
-//
-//// Kamera so setzen, dass du ihn sicher siehst:
-////camera.position.set(0, 2, 5);
-////camera.lookAt(0, 0, 0);
-//
-//h2c.traverse((child) => {
-//  if (!child.isMesh) return;
-//  child.material = h2cBakedMaterial;
-//});
-//
-//  scene.add(h2c);
-//});
-
-//______________H2C Test_________________________
-//EXPERIMENT ENDE
 
 const scene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera(
@@ -635,10 +635,6 @@ const renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true });
 renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 
-//const geometry = new THREE.BoxGeometry( 1, 1, 1 );
-//const material = new THREE.MeshBasicMaterial( { color: 0x00ff00 } );
-//const cube = new THREE.Mesh( geometry, material );
-//scene.add( cube );
 
 
 // Einstellungen Startansicht
@@ -692,16 +688,16 @@ const render = () => {
     fan.rotation.y -= 0.1;
   });
 
-  // Performance: Raycaster nur ausführen wenn nicht dragging und Update benötigt
-  if (!isDragging && raycasterNeedsUpdate) {
+// Performance: Raycaster nur ausführen wenn nicht dragging, kein Modal offen und Update benötigt
+  if (!isDragging && !isModalOpen && raycasterNeedsUpdate) {
     raycaster.setFromCamera(pointer, camera);
     currentIntersects = raycaster.intersectObjects(raycasterObjects, false); // Nur relevante Objekte checken
     raycasterNeedsUpdate = false;
   }
 
-// Aktuell gehoverte ermitteln (nur wenn nicht dragging)
+// Aktuell gehoverte ermitteln (nur wenn nicht dragging und kein Modal offen)
   const currentHovered = new Set();
-  if (!isDragging) {
+  if (!isDragging && !isModalOpen) {
     currentIntersects.forEach((intersect) => {
       const obj = intersect.object;
       if (obj.name.includes("_Hover")) {
@@ -752,8 +748,10 @@ const render = () => {
     }
   });
 
-  // Cursor
-  document.body.style.cursor = currentHovered.size > 0 ? "pointer" : "default";
+// Cursor (nur ändern wenn kein Modal offen)
+  if (!isModalOpen) {
+    document.body.style.cursor = currentHovered.size > 0 ? "pointer" : "default";
+  }
 
   renderer.render(scene, camera);
   renderer.setClearColor(0x222222);
