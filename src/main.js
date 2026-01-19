@@ -230,16 +230,6 @@ const loader = new GLTFLoader(manager);
 loader.setDRACOLoader(dracoLoader);
 
 
-////________________H2C Test_______________________
-//const h2cBake = textureLoader.load("/textures/Test.webp"); // Pfad anpassen
-//h2cBake.flipY = false;
-//h2cBake.encoding = THREE.sRGBEncoding;
-//
-//const h2cBakedMaterial = new THREE.MeshBasicMaterial({
-//  map: h2cBake,
-//});
-////________________H2C Test_______________________
-
 const enviromentMap = new THREE.CubeTextureLoader()
   .setPath("/textures/skybox/")
   .load(["px.webp", "nx.webp", "py.webp", "ny.webp", "pz.webp", "nz.webp"]);
@@ -295,13 +285,26 @@ const glassMaterial = new THREE.MeshPhysicalMaterial({
   depthWrite: false,
 });
 
+const blueMaterial = new THREE.MeshPhysicalMaterial({
+  color: 0x000080,
+  metalness: 0,
+  roughness: 0,
+  transparent: true,
+  opacity: 0.3,
+  ior: 1.5,
+  envMap: enviromentMap,
+  transmission: 0.8,
+  thickness: 0.1,
+  depthWrite: false,
+});
+
 // Orange Glass Material für ResinFormlabs_Glass
-const Glass_Orange = new THREE.MeshPhysicalMaterial({
+const orangeMaterial = new THREE.MeshPhysicalMaterial({
   color: 0xff8c00, // Orange
   metalness: 0,
   roughness: 0,
   transparent: true,
-  opacity: 0.3, // Translucent
+  opacity: 0.5, // Translucent
   ior: 1.5,
   envMap: enviromentMap,
   transmission: 0.8,
@@ -478,6 +481,10 @@ loader.load("/models/Porti-v1.glb", (glb) => {
         });
       } else if (child.name.includes("Glass")) {
         child.material = glassMaterial;
+      } else if (child.name.includes("Blue")) {
+        child.material = blueMaterial;
+      } else if (child.name.includes("Orange")) {
+        child.material = orangeMaterial;
         //________________________H2C Test_________________________
       } else if (child.name.includes("Green")) {
         child.material = Glass_Green;
