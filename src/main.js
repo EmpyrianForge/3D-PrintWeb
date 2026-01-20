@@ -27,7 +27,7 @@ document.querySelectorAll(".modal-exit-button").forEach((button) => {
       const modal = e.target.closest(".modal");
       hideModal(modal);
     },
-    { passive: false }
+    { passive: false },
   );
 
   button.addEventListener("click", (e) => {
@@ -41,8 +41,7 @@ document.querySelectorAll(".modal-exit-button").forEach((button) => {
 const showModal = (modal) => {
   modal.style.display = "block";
 
-  // Deaktiviere alle Hintergrundinteraktionen
-  disableBackgroundInteractions();
+  disableBackgroundInteractions(); // Deaktiviere alle Hintergrundinteraktionen
 
   gsap.set(modal, { opacity: 0 });
   gsap.to(modal, {
@@ -51,14 +50,79 @@ const showModal = (modal) => {
   });
 };
 
+// Icon banner
+const bannerCanvas = document.createElement("canvas"); 
+bannerCanvas.width = 1024;
+bannerCanvas.height = 576;
+const bannerCtx = bannerCanvas.getContext("2d");
+
+const bannerTexture = new THREE.CanvasTexture(bannerCanvas);
+bannerTexture.minFilter = THREE.LinearFilter;
+
+const bannerMaterial = new THREE.MeshBasicMaterial({
+  map: bannerTexture,
+  transparent: true,
+  alphaTest: 0.01,
+  toneMapped: false,
+});
+
+// Icon loader
+const iconImages = [];
+const iconLoadStates = [];
+[
+  "nodejs",
+  "c",
+  "git",
+  "html",
+  "vite",
+  "css",
+  "java",
+  "py",
+  "ts",
+  "threejs",
+  "",
+].forEach((lang) => {
+  const img = new Image(240, 240);
+  const index = iconImages.length;
+  iconLoadStates.push(false);
+  img.onload = () => {
+    iconLoadStates[index] = true;
+  };
+  img.onerror = () => {
+    iconLoadStates[index] = true; // Always loaded, prevent broken error
+  };
+  img.src = `./icons/${lang}.png`;
+  iconImages.push(img);
+});
+
+let bannerTime = 0;
+let bannerIcons = [];
+const iconSize = 256; 
+
+const gap = 40;
+const totalWidthPerIcon = iconSize + gap;
+let marqueeOffset = 0; 
+
+// Icons Init
+const initBannerIcons = () => {
+  bannerIcons = [];
+  const total = iconImages.length;
+  for (let i = 0; i < total; i++) {
+    bannerIcons.push({
+      index: i,
+    });
+  }
+};
+
+initBannerIcons();
+
 const hideModal = (modal) => {
   gsap.to(modal, {
     opacity: 0,
     duration: 0.5,
     onComplete: () => {
       modal.style.display = "none";
-      // Reaktiviere alle Hintergrundinteraktionen
-      enableBackgroundInteractions();
+      enableBackgroundInteractions();// Reaktiviere alle Hintergrundinteraktionen
     },
   });
 };
@@ -70,14 +134,13 @@ const animatedObjects = {
   Shield_MyWork: null,
   Shield_About: null,
   Shield_Contact: null,
-  H2C: null, 
+  H2C: null,
   H2C_Green: null,
   GitHubFront: null,
   InstaButton: null,
   MakerWorldButton: null,
   ResinFormlabs_Glass: null,
   ResinFormlabs: null,
-
 };
 
 const raycasterObjects = [];
@@ -105,38 +168,36 @@ const pointer = new THREE.Vector2();
 let isDragging = false;
 let lastPointerPos = { x: 0, y: 0 };
 let raycasterNeedsUpdate = true;
-
-// Hintergrundinteraktions-Status
 let isModalOpen = false;
 
 // Funktionen zum Deaktivieren/Aktivieren von Hintergrundinteraktionen
 const disableBackgroundInteractions = () => {
   isModalOpen = true;
-  
+
   // Deaktiviere OrbitControls
   if (controls) {
     controls.enabled = false;
   }
-  
+
   // Deaktiviere Raycaster
   raycasterNeedsUpdate = false;
-  
+
   // Setze alle Hover-Objekte zurück
   activeHoverObjects.clear();
   hoveredObjects = [];
-  
+
   // Setze Cursor zurück
-  document.body.style.cursor = 'default';
+  document.body.style.cursor = "default";
 };
 
 const enableBackgroundInteractions = () => {
   isModalOpen = false;
-  
+
   // Reaktiviere OrbitControls
   if (controls) {
     controls.enabled = true;
   }
-  
+
   // Reaktiviere Raycaster
   raycasterNeedsUpdate = true;
 };
@@ -163,10 +224,10 @@ manager.onLoad = function () {
   loadingScreenButton.style.transition =
     "transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94)";
 
-  document.body.style.visibility = "visible"; 
+  document.body.style.visibility = "visible";
 
   let isDisabled = false;
-  
+
   function handleEnter() {
     if (isDisabled) return;
 
@@ -179,29 +240,27 @@ manager.onLoad = function () {
     isDisabled = true;
     playReaveal();
   }
-    // document.querySelector
-    //document.querySelector
 
-    loadingScreenButton.addEventListener("mouseenter", () => {
-      loadingScreenButton.style.transform = "scale(1.3)";
-    });
 
-    loadingScreenButton.addEventListener("touchend", (e) => {
-      touchHappend = true;
-      e.preventDefault();
-      handleEnter();
-    });
+  loadingScreenButton.addEventListener("mouseenter", () => {
+    loadingScreenButton.style.transform = "scale(1.3)";
+  });
 
-    loadingScreenButton.addEventListener("click", (e) => {
-      if (touchHappend) return;
-      handleEnter();
-    });
+  loadingScreenButton.addEventListener("touchend", (e) => {
+    touchHappend = true;
+    e.preventDefault();
+    handleEnter();
+  });
 
-    loadingScreenButton.addEventListener("mouseleave", () => {
-      loadingScreenButton.style.transform = "none";
-    });
-  };
+  loadingScreenButton.addEventListener("click", (e) => {
+    if (touchHappend) return;
+    handleEnter();
+  });
 
+  loadingScreenButton.addEventListener("mouseleave", () => {
+    loadingScreenButton.style.transform = "none";
+  });
+};
 
 function playReaveal() {
   const tl = gsap.timeline({});
@@ -211,7 +270,7 @@ function playReaveal() {
     delay: 0.25,
     ease: "back.in(1.7)",
   }).to(
-    ".loading-screen", 
+    ".loading-screen",
     {
       y: "200vh",
       transform: " perspective(1000px) rotateX(45deg) rotateY(-35deg)",
@@ -222,13 +281,12 @@ function playReaveal() {
         loadingScreen.remove();
       },
     },
-    "-=0.1"
+    "-=0.1",
   );
-};
+}
 
 const loader = new GLTFLoader(manager);
 loader.setDRACOLoader(dracoLoader);
-
 
 const enviromentMap = new THREE.CubeTextureLoader()
   .setPath("/textures/skybox/")
@@ -256,7 +314,7 @@ const textureMap = {
   Seven: {
     day: "/images/7-bake.webp",
   },
-Eight: {
+  Eight: {
     day: "/images/8bake.webp",
   },
 };
@@ -300,11 +358,11 @@ const blueMaterial = new THREE.MeshPhysicalMaterial({
 
 // Orange Glass Material für ResinFormlabs_Glass
 const orangeMaterial = new THREE.MeshPhysicalMaterial({
-  color: 0xff8c00, // Orange
+  color: 0xff8c00, 
   metalness: 0,
   roughness: 0,
   transparent: true,
-  opacity: 0.5, // Translucent
+  opacity: 0.5, 
   ior: 1.5,
   envMap: enviromentMap,
   transmission: 0.8,
@@ -346,9 +404,13 @@ window.addEventListener("mousemove", (e) => {
   touchHappend = false;
   const newPointerX = (e.clientX / window.innerWidth) * 2 - 1;
   const newPointerY = -(e.clientY / window.innerHeight) * 2 + 1;
-  
-  // Nur Raycaster updaten wenn sich Maus wirklich bewegt hat und kein Modal offen ist
-  if (!isModalOpen && (Math.abs(newPointerX - pointer.x) > 0.001 || Math.abs(newPointerY - pointer.y) > 0.001)) {
+
+// Nur Raycaster updaten wenn sich Maus wirklich bewegt hat und kein Modal offen ist
+  if (
+    !isModalOpen &&
+    (Math.abs(newPointerX - pointer.x) > 0.001 ||
+      Math.abs(newPointerY - pointer.y) > 0.001)
+  ) {
     pointer.x = newPointerX;
     pointer.y = newPointerY;
     raycasterNeedsUpdate = true;
@@ -359,31 +421,28 @@ window.addEventListener(
   "touchstart",
   (e) => {
     e.preventDefault();
-    // Touch-Interaktion nur verarbeiten, wenn kein Modal offen ist
     if (!isModalOpen) {
       pointer.x = (e.touches[0].clientX / window.innerWidth) * 2 - 1;
       pointer.y = -(e.touches[0].clientY / window.innerHeight) * 2 + 1;
     }
   },
-  { passive: false }
+  { passive: false },
 );
 
 window.addEventListener(
   "touchend",
   (e) => {
     e.preventDefault();
-    // Touch-Interaktion nur verarbeiten, wenn kein Modal offen ist
     if (!isModalOpen) {
       handleRaycasterInteraction();
     }
   },
-  { passive: false }
+  { passive: false },
 );
 
 function handleRaycasterInteraction() {}
 
 window.addEventListener("click", (e) => {
-  // Nur Klick-Interaktionen verarbeiten, wenn kein Modal offen ist
   if (!isModalOpen && currentIntersects.length > 0) {
     const object = currentIntersects[0].object;
 
@@ -407,14 +466,13 @@ window.addEventListener("click", (e) => {
   }
 });
 
-loader.load("/models/Porti-v1.glb", (glb) => {
+loader.load("/models/Roomi-v1.glb", (glb) => {
   glb.scene.traverse((child) => {
     if (child.isMesh) {
-
       if (child.name.includes("_Hover")) {
         child.userData.initialScale = new THREE.Vector3().copy(child.scale);
         child.userData.initialPosition = new THREE.Vector3().copy(
-          child.position
+          child.position,
         );
         child.userData.initialRotation = new THREE.Euler().copy(child.rotation);
         child.userData.isAnimating = false;
@@ -422,12 +480,10 @@ loader.load("/models/Porti-v1.glb", (glb) => {
         // Hover-Zielwerte RELATIV berechnen
         child.userData.hoverScale = new THREE.Vector3()
           .copy(child.scale)
-          .multiplyScalar(1.5); // 1.5x der Original-Größe
+          .multiplyScalar(1.5); 
 
         console.log("Hover transformiert:", child.name);
       }
-
-      // Speichere Objekte für Animationen
       if (child.name.includes("Shield_MyWork")) {
         animatedObjects.Shield_MyWork = child;
         child.scale.set(0, 0, 0);
@@ -454,12 +510,12 @@ loader.load("/models/Porti-v1.glb", (glb) => {
         animatedObjects.GitHubFront = child;
         child.scale.set(0, 0, 0);
       }
-      
+
       if (child.name.includes("InstaButton")) {
         animatedObjects.InstaButton = child;
         child.scale.set(0, 0, 0);
       }
-      
+
       if (child.name.includes("MakerWorldButton")) {
         animatedObjects.MakerWorldButton = child;
         child.scale.set(0, 0, 0);
@@ -467,6 +523,10 @@ loader.load("/models/Porti-v1.glb", (glb) => {
 
       if (child.name.includes("__Raycaster")) {
         raycasterObjects.push(child);
+      }
+      if (child.isMesh && child.name.includes("Icon__Banner")) {
+        child.material = bannerMaterial;
+        console.log("✅ Icon__Banner CanvasTexture gesetzt!");
       }
 
       if (child.name.includes("Water")) {
@@ -492,9 +552,7 @@ loader.load("/models/Porti-v1.glb", (glb) => {
       } else if (child.name.includes("White")) {
         child.material = whiteMaterial;
       } else if (child.name.includes("Screen")) {
-        child.material = new THREE.MeshPhysicalMaterial({
-          
-        });
+        child.material = new THREE.MeshPhysicalMaterial({});
       } else {
         Object.keys(textureMap).forEach((key) => {
           if (child.name.includes(key)) {
@@ -525,13 +583,12 @@ loader.load("/models/Porti-v1.glb", (glb) => {
   });
 
   scene.add(glb.scene);
-  glb.scene.scale.set(0.01, 0.01, 0.01); 
-  glb.scene.scale.setScalar(0.01); 
-  
+  glb.scene.scale.set(0.01, 0.01, 0.01);
+  glb.scene.scale.setScalar(0.01);
 });
 
- //Intro Animation
- //Objekte müssen in den load via child.name.includes eingebunden werden und dann child.scale.set
+//Intro Animation
+//Objekte müssen in den load via child.name.includes eingebunden werden und dann child.scale.set
 function playIntroAnimation() {
   if (!animatedObjects.Shield_MyWork) {
     console.warn("Objekte noch nicht geladen!");
@@ -545,18 +602,14 @@ function playIntroAnimation() {
       ease: "power2.out",
     },
   });
-  
 
   //WICHTIG: item.scale, = der vorherdefinierte childname von blender
   //GSAP TO funktion
-  t1.to(
-    animatedObjects.Shield_MyWork.scale,
-    {
-      x: 1,
-      z: 1,
-      y: 1,
-    },
-  )
+  t1.to(animatedObjects.Shield_MyWork.scale, {
+    x: 1,
+    z: 1,
+    y: 1,
+  })
     .to(
       animatedObjects.Shield_About.scale,
       {
@@ -564,7 +617,7 @@ function playIntroAnimation() {
         y: 1,
         z: 1,
       },
-      "-=0.7"
+      "-=0.7",
     )
     .to(
       animatedObjects.Shield_Contact.scale,
@@ -573,7 +626,7 @@ function playIntroAnimation() {
         y: 1,
         z: 1,
       },
-      "-=0.7"
+      "-=0.7",
     )
     .to(
       animatedObjects.H2C.scale,
@@ -582,7 +635,7 @@ function playIntroAnimation() {
         y: 0.4,
         z: 0.4,
       },
-      "-=0.7"
+      "-=0.7",
     )
     .to(
       animatedObjects.H2C_Green.scale,
@@ -591,7 +644,7 @@ function playIntroAnimation() {
         y: 1,
         z: 1,
       },
-      "-=0.7"
+      "-=0.7",
     );
 
   //T2 = zweiter animationsdurchlauf, falls benötigt
@@ -602,41 +655,37 @@ function playIntroAnimation() {
     },
   });
   //WICHTIG: item.scale, = der vorherdefinierte childname von blender
-  t2.to(
-  animatedObjects.GitHubFront.scale,
-  {
+  t2.to(animatedObjects.GitHubFront.scale, {
     x: 1,
     y: 1,
     z: 1,
-  }
-  )
-  .to(
-    animatedObjects.InstaButton.scale,
-    {
-      x: 1,
-      y: 1,
-      z: 1,
-    },
-    "-=0.5"
-  )
-  .to(
-    animatedObjects.MakerWorldButton.scale,
-    {
-      x: 0.3,
-      y: 0.3,
-      z: 0.3,
-    },
-    "-=0.5"
-  );
+  })
+    .to(
+      animatedObjects.InstaButton.scale,
+      {
+        x: 1,
+        y: 1,
+        z: 1,
+      },
+      "-=0.5",
+    )
+    .to(
+      animatedObjects.MakerWorldButton.scale,
+      {
+        x: 0.3,
+        y: 0.3,
+        z: 0.3,
+      },
+      "-=0.5",
+    );
 }
-
 
 const scene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera(
   45,
   sizes.width / sizes.height,
   0.1,
-  1000
+  1000,
 );
 
 camera.position.set(109.35682075158908, 35.704396522969226, -77.44092573698502);
@@ -644,8 +693,6 @@ camera.position.set(109.35682075158908, 35.704396522969226, -77.44092573698502);
 const renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true });
 renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-
-
 
 // Einstellungen Startansicht
 const controls = new OrbitControls(camera, renderer.domElement);
@@ -661,16 +708,16 @@ controls.dampingFactor = 0.05;
 controls.target.set(
   -15.032524979835078,
   13.056863836526139,
-  -11.60751480655244
+  -11.60751480655244,
 );
 
 // Performance: Track dragging state
-controls.addEventListener('start', () => {
+controls.addEventListener("start", () => {
   isDragging = true;
 });
-controls.addEventListener('end', () => {
+controls.addEventListener("end", () => {
   isDragging = false;
-  raycasterNeedsUpdate = true; // Raycaster nach Drag neu auslösen
+  raycasterNeedsUpdate = true; 
 });
 controls.update();
 
@@ -679,15 +726,15 @@ window.addEventListener("resize", () => {
   sizes.width = window.innerWidth;
   sizes.height = window.innerHeight;
 
-  //Update camera
+//Update camera
   camera.aspect = sizes.width / sizes.height;
   camera.updateProjectionMatrix();
 
-  // Update renderer
+// Update renderer
   renderer.setSize(sizes.width, sizes.height);
   renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 });
-//////////_____________________________________________
+
 
 const render = () => {
   controls.update();
@@ -697,6 +744,52 @@ const render = () => {
   yAxisFans.forEach((fan) => {
     fan.rotation.y -= 0.1;
   });
+
+// ICON BANNER ANIMATION
+  bannerTime += 0.018;
+  bannerCtx.clearRect(0, 0, bannerCanvas.width, bannerCanvas.height); // Transparenz!
+
+  const scrollSpeed = 1.5;
+  marqueeOffset += scrollSpeed;
+
+  const totalIcons = iconImages.length;
+  const loopWidth = totalWidthPerIcon * totalIcons;
+  marqueeOffset = marqueeOffset % loopWidth;
+
+  for (let i = 0; i < totalIcons; i++) {
+    const imgIndex = i;
+    let x = i * totalWidthPerIcon - marqueeOffset;
+
+    if (x < -iconSize) {
+      x += loopWidth;
+    }
+
+    const y = bannerCanvas.height / 2 - iconSize / 2;
+
+    if (
+      iconLoadStates[imgIndex] &&
+      iconImages[imgIndex].complete &&
+      iconImages[imgIndex].naturalWidth > 0
+    ) {
+      bannerCtx.shadowColor = "#00ffff";
+      bannerCtx.shadowBlur = 20;
+
+      bannerCtx.save();
+      bannerCtx.translate(x + iconSize / 2, y + iconSize / 2);
+      bannerCtx.rotate(Math.PI);
+      bannerCtx.drawImage(
+        iconImages[imgIndex],
+        -iconSize / 2,
+        -iconSize / 2,
+        iconSize,
+        iconSize,
+      );
+      bannerCtx.restore();
+    }
+  }
+
+  bannerCtx.shadowBlur = 0;
+  bannerTexture.needsUpdate = true;
 
 // Performance: Raycaster nur ausführen wenn nicht dragging, kein Modal offen und Update benötigt
   if (!isDragging && !isModalOpen && raycasterNeedsUpdate) {
@@ -717,13 +810,9 @@ const render = () => {
     });
   }
 
-  // 1. ALLE aktiven Hover-Objekte resetten/animieren
+// 1. ALLE aktiven Hover-Objekte resetten/animieren
   activeHoverObjects.forEach((obj) => {
     const isHovered = currentHovered.has(obj);
-
-
-
-    // Transform
     if (obj.userData.initialScale) {
       const targetScale =
         isHovered && obj.userData.hoverScale
@@ -735,17 +824,17 @@ const render = () => {
       obj.rotation.x = THREE.MathUtils.lerp(
         obj.rotation.x,
         obj.userData.initialRotation.x,
-        0.12
+        0.12,
       );
       obj.rotation.y = THREE.MathUtils.lerp(
         obj.rotation.y,
         obj.userData.initialRotation.y,
-        0.12
+        0.12,
       );
       obj.rotation.z = THREE.MathUtils.lerp(
         obj.rotation.z,
         obj.userData.initialRotation.z,
-        0.12
+        0.12,
       );
 
       // Entfernen wenn vollständig zurückgesetzt (Distanz < 0.01)
@@ -758,9 +847,10 @@ const render = () => {
     }
   });
 
-// Cursor (nur ändern wenn kein Modal offen)
+  // Cursor (nur ändern wenn kein Modal offen)
   if (!isModalOpen) {
-    document.body.style.cursor = currentHovered.size > 0 ? "pointer" : "default";
+    document.body.style.cursor =
+      currentHovered.size > 0 ? "pointer" : "default";
   }
 
   renderer.render(scene, camera);
