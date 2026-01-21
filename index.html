@@ -1,35 +1,92 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>roomweb</title>
-      <style>
-    body {
-      visibility: hidden;
-    }
+    <style>
+      body {
+        visibility: hidden;
+      }
 
-    .loading-screen {
-      visibility: visible !important;
-      opacity: 1 !important;
-      display: flex !important;
-    }
+      .loading-screen {
+        visibility: visible !important;
+        opacity: 1 !important;
+        display: flex !important;
+      }
     </style>
   </head>
   <body>
     <div id="app"></div>
 
     <div class="loading-screen">
-      <button class="loading-screen-button">Loading...
-      </button>
+      <button class="loading-screen-button">Loading...</button>
     </div>
     <div class="work modal">
-      <h1>myworkmyworkmyworkmywororkmyworkmywork</h1>
+      <h2>My Work</h2>
+      <p>
+        Als Fachinformatiker für Anwendungsentwicklung verbinde ich
+        Full-Stack-Webentwicklung mit 3D-Design und interaktiven
+        Visualisierungen. Mein Fokus liegt auf modernen Webtechnologien wie
+        Three.js, Vue und Vite sowie 3D-Modellierung in Blender und Fusion 360.
+      </p>
+
+      <h3>Aktuelle Projekte</h3>
+      <ul>
+        <li>
+          <strong>KreativKonstruction:</strong> 3D-Druck-Business mit FDM und
+          Resin-Printing (Bambu Lab P1S, H2C)
+        </li>
+        <li>
+          <strong>Portfolio-Website:</strong> Interaktive 3D-Raumvisualisierung
+          mit Three.js, STL-Previewer und Canvas-Animationen
+        </li>
+        <li>
+          <strong>Game Engine Development:</strong> Unreal Engine 5 mit C++ und
+          Pixel Streaming
+        </li>
+        <li>
+          <strong>Embedded Systems:</strong> IoT-Projekte mit Raspberry Pi und
+          Arduino
+        </li>
+      </ul>
+
       <button class="modal-exit-button">EXIT BUTTON</button>
     </div>
     <div class="about modal">
-      <h1>aboutaboutaboutaboutautaboutaboutabout</h1>
+      <h2>About Me</h2>
+      <p>
+        Ich bin IT-Anwendungsentwickler in der Umschulung (IHK) mit Leidenschaft
+        für 3D-Technologien und kreative Problemlösungen. Mein Arbeitsalltag
+        kombiniert strukturiertes Lernen mit selbstgesteuerten Projekten in
+        Web-, Game- und Embedded-Development.
+      </p>
+
+      <h3>Skills & Tools</h3>
+      <ul>
+        <li>
+          <strong>Programming:</strong> C++, Python, JavaScript/TypeScript,
+          Java, GLSL
+        </li>
+        <li>
+          <strong>3D & Design:</strong> Blender, Autodesk Fusion 360, Three.js,
+          Unreal Engine 5
+        </li>
+        <li>
+          <strong>Web Stack:</strong> Vue, Vite, Node.js, Git/GitHub, Vercel
+        </li>
+        <li>
+          <strong>Hardware:</strong> 3D-Printing (FDM/Resin), Raspberry Pi,
+          Arduino, Mikrocontroller
+        </li>
+      </ul>
+
+      <p>
+        Aktuell erweitere ich mein Wissen in Graphics Programming, LWJGL und
+        IT-Management (ITIL, ISO 9001).
+      </p>
+
       <button class="modal-exit-button">EXIT BUTTON</button>
     </div>
     <div class="contact modal">
@@ -41,5 +98,5 @@
       <canvas id="experience-canvas" class="experience-canvas"></canvas>
     </div>
     <script type="module" src="/src/main.js"></script>
-</body>
+  </body>
 </html>
