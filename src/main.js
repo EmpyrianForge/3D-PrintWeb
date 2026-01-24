@@ -122,7 +122,7 @@ const hideModal = (modal) => {
     duration: 0.5,
     onComplete: () => {
       modal.style.display = "none";
-      enableBackgroundInteractions();// Reaktiviere alle Hintergrundinteraktionen
+      enableBackgroundInteractions(); // Reaktiviere alle Hintergrundinteraktionen
     },
   });
 };
@@ -155,7 +155,7 @@ const animatedObjects = {
   Name_N2: null,
   Name_U: null,
   Name_V: null,
-}
+};
 
 const raycasterObjects = [];
 //Main try
@@ -197,8 +197,11 @@ const disableBackgroundInteractions = () => {
   raycasterNeedsUpdate = false;
 
   // Setze alle Hover-Objekte zurück
-  activeHoverObjects.clear();
-  hoveredObjects = [];
+  // activeHoverObjects.clear(); // REMOVE THIS: Cleared objects cannot animate back!
+  // hoveredObjects = []; // Unused variable?
+
+  // Clear current intersections to prevent stale clicks
+  currentIntersects = [];
 
   // Setze Cursor zurück
   document.body.style.cursor = "default";
@@ -254,7 +257,6 @@ manager.onLoad = function () {
     isDisabled = true;
     playReaveal();
   }
-
 
   loadingScreenButton.addEventListener("mouseenter", () => {
     loadingScreenButton.style.transform = "scale(1.3)";
@@ -434,26 +436,18 @@ window.addEventListener("mousemove", (e) => {
 window.addEventListener(
   "touchstart",
   (e) => {
-    // Only update pointer if not in a modal - allow default for UI interaction
+    // Pointer update ONLY if not in a modal, default UI interaction
     if (!isModalOpen && e.touches.length > 0) {
       pointer.x = (e.touches[0].clientX / window.innerWidth) * 2 - 1;
       pointer.y = -(e.touches[0].clientY / window.innerHeight) * 2 + 1;
     }
   },
   { passive: true }, // passive: true improves scrolling performance
-
 );
 
-window.addEventListener(
-  "touchend",
-  () => {
-    // No need to preventDefault here globally.
-    // Click events will fire after touchend if not canceled, handling the interaction.
-  },
-  { passive: true },
-);
+window.addEventListener("touchend", () => {}, { passive: true });
 
-function handleRaycasterInteraction() { }
+function handleRaycasterInteraction() {}
 
 window.addEventListener("click", (e) => {
   if (!isModalOpen && currentIntersects.length > 0) {
@@ -480,6 +474,9 @@ window.addEventListener("click", (e) => {
 });
 
 loader.load("/models/Roomi-v1.glb", (glb) => {
+  // Material Cache to prevent memory leaks and crashes
+  const createdMaterials = {};
+
   glb.scene.traverse((child) => {
     if (child.isMesh) {
       if (child.name.includes("_Hover")) {
@@ -493,7 +490,7 @@ loader.load("/models/Roomi-v1.glb", (glb) => {
         // Hover-Zielwerte RELATIV berechnen
         child.userData.hoverScale = new THREE.Vector3()
           .copy(child.scale)
-          .multiplyScalar(1.5);
+          .multiplyScalar(1.5); 
 
         console.log("Hover transformiert:", child.name);
       }
@@ -613,15 +610,18 @@ loader.load("/models/Roomi-v1.glb", (glb) => {
       }
 
       if (child.name.includes("Water")) {
-        child.material = new THREE.MeshPhysicalMaterial({
-          color: 0x55b8c8,
-          metalness: 0,
-          roughness: 0,
-          transparent: true,
-          opacity: 0.6,
-          ior: 1.33,
-          depthWrite: false,
-        });
+        if (!createdMaterials.water) {
+          createdMaterials.water = new THREE.MeshPhysicalMaterial({
+            color: 0x55b8c8,
+            metalness: 0,
+            roughness: 0,
+            transparent: true,
+            opacity: 0.6,
+            ior: 1.33,
+            depthWrite: false,
+          });
+        }
+        child.material = createdMaterials.water;
       } else if (child.name.includes("Glass")) {
         child.material = glassMaterial;
       } else if (child.name.includes("Blue")) {
@@ -635,15 +635,22 @@ loader.load("/models/Roomi-v1.glb", (glb) => {
       } else if (child.name.includes("White")) {
         child.material = whiteMaterial;
       } else if (child.name.includes("Screen")) {
-        child.material = new THREE.MeshPhysicalMaterial({});
+        if (!createdMaterials.screen) {
+          createdMaterials.screen = new THREE.MeshPhysicalMaterial({});
+        }
+        child.material = createdMaterials.screen;
       } else {
         Object.keys(textureMap).forEach((key) => {
           if (child.name.includes(key)) {
-            const material = new THREE.MeshBasicMaterial({
-              map: loadedTextures.day[key],
-            });
-
-            child.material = material;
+            if (!createdMaterials[key]) {
+               createdMaterials[key] = new THREE.MeshBasicMaterial({
+                map: loadedTextures.day[key],
+              });
+              if (createdMaterials[key].map) {
+                createdMaterials[key].map.minFilter = THREE.LinearFilter;
+              }
+            }
+            child.material = createdMaterials[key];
 
             if (child.name.includes("Fan")) {
               if (
@@ -655,10 +662,6 @@ loader.load("/models/Roomi-v1.glb", (glb) => {
                 zAxisFans.push(child);
               }
             }
-
-            if (child.material.map) {
-              child.material.map.minFilter = THREE.LinearFilter;
-            }
           }
         });
       }
@@ -668,6 +671,13 @@ loader.load("/models/Roomi-v1.glb", (glb) => {
   scene.add(glb.scene);
   glb.scene.scale.set(0.01, 0.01, 0.01);
   glb.scene.scale.setScalar(0.01);
+}, (xhr) => {
+    // optional: download progress
+}, (error) => {
+    console.error('An error happened loading the GLB:', error);
+    // Optionally remove loading screen or show error
+    document.querySelector(".loading-screen-button").textContent = "Error Loading";
+    document.querySelector(".loading-screen-button").style.color = "red";
 });
 
 //Intro Animation
@@ -887,8 +897,7 @@ function playIntroAnimation() {
         z: 1,
       },
       "-=0.7",
-    )
-
+    );
 }
 
 const scene = new THREE.Scene();
@@ -945,7 +954,6 @@ window.addEventListener("resize", () => {
   renderer.setSize(sizes.width, sizes.height);
   renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 });
-
 
 const render = () => {
   controls.update();
