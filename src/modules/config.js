@@ -4,9 +4,11 @@ export const SIZES = {
 };
 
 export const SOCIAL_LINKS = {
-  InstaButton: "https://www.instagram.com/empyrian_forge/",
+  BootdevButton: "https://www.boot.dev/u/forge",
   GitHubFront: "https://github.com/EmpyrianForge",
-  MakerWorldButton: "https://www.makerworld.com",
+  LeetCodeButton: "https://leetcode.com/u/Hexxis/",
+  //InstagramButton: "https://www.instagram.com/empyrianforge/",
+  //MakerWorldButton: "https://makerworld.com/",
 };
 
 export const ICON_NAMES = [

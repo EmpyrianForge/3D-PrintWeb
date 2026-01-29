@@ -36,41 +36,68 @@ export const playIntroAnimation = () => {
     defaults: { duration: 1, ease: "power2.out" },
   });
 
-  t1.to(state.animatedObjects.Shield_MyWork.scale, { x: 1, z: 1, y: 1 })
-    .to(state.animatedObjects.Shield_About.scale, { x: 1, y: 1, z: 1 }, "-=0.7")
-    .to(
+  if (state.animatedObjects.Shield_MyWork)
+    t1.to(state.animatedObjects.Shield_MyWork.scale, { x: 1, z: 1, y: 1 });
+  if (state.animatedObjects.Shield_About)
+    t1.to(state.animatedObjects.Shield_About.scale, { x: 1, y: 1, z: 1 }, "-=0.7");
+  if (state.animatedObjects.Shield_Contact)
+    t1.to(
       state.animatedObjects.Shield_Contact.scale,
       { x: 1, y: 1, z: 1 },
       "-=0.7",
-    )
-    .to(state.animatedObjects.H2C.scale, { x: 0.3, y: 0.4, z: 0.4 }, "-=0.7")
-    .to(state.animatedObjects.H2C_Green.scale, { x: 1, y: 1, z: 1 }, "-=0.7");
+    );
+  if (state.animatedObjects.H2C)
+    t1.to(state.animatedObjects.H2C.scale, { x: 0.3, y: 0.4, z: 0.4 }, "-=0.7");
+  if (state.animatedObjects.H2C_Green)
+    t1.to(state.animatedObjects.H2C_Green.scale, { x: 1, y: 1, z: 1 }, "-=0.7");
 
   const t2 = gsap.timeline({
     defaults: { duration: 0.8, ease: "back.out(1.7)" },
   });
 
-  t2.to(state.animatedObjects.GitHubFront.scale, { x: 1, y: 1, z: 1 })
-    .to(state.animatedObjects.InstaButton.scale, { x: 1, y: 1, z: 1 }, "-=0.5")
-    .to(
-      state.animatedObjects.MakerWorldButton.scale,
+  if (state.animatedObjects.GitHubFront)
+    t2.to(state.animatedObjects.GitHubFront.scale, { x: 1, y: 1, z: 1 });
+  if (state.animatedObjects.LeetCodeButton)
+    t2.to(
+      state.animatedObjects.LeetCodeButton.scale,
+      { x: 1, y: 1, z: 1 },
+      "-=0.5",
+    );
+  if (state.animatedObjects.BootdevButton)
+    t2.to(
+      state.animatedObjects.BootdevButton.scale,
       { x: 0.3, y: 0.3, z: 0.3 },
       "-=0.5",
-    )
-    .to(state.animatedObjects.Dixiclock.scale, { x: 1, y: 1, z: 1 }, "-=0.5")
-    .to(state.animatedObjects.Gandalf.scale, { x: 1, y: 1, z: 1 }, "-=0.3")
-    .to(state.animatedObjects.Name_K.scale, { x: 1, y: 1, z: 1 }, "-=0.7")
-    .to(state.animatedObjects.Name_E.scale, { x: 1, y: 1, z: 1 }, "-=0.7")
-    .to(state.animatedObjects.Name_V.scale, { x: 1, y: 1, z: 1 }, "-=0.7")
-    .to(state.animatedObjects.Name_I.scale, { x: 1, y: 1, z: 1 }, "-=0.7")
-    .to(state.animatedObjects.Name_N1.scale, { x: 1, y: 1, z: 1 }, "-=0.7")
-    .to(state.animatedObjects.Name_B.scale, { x: 1, y: 1, z: 1 }, "-=0.7")
-    .to(state.animatedObjects.Name_A1.scale, { x: 1, y: 1, z: 1 }, "-=0.7")
-    .to(state.animatedObjects.Name_U.scale, { x: 1, y: 1, z: 1 }, "-=0.3")
-    .to(state.animatedObjects.Name_N2.scale, { x: 1, y: 1, z: 1 }, "-=0.7")
-    .to(state.animatedObjects.Name_A2.scale, { x: 1, y: 1, z: 1 }, "-=0.7")
-    .to(state.animatedObjects.Name_C.scale, { x: 1, y: 1, z: 1 }, "-=0.7")
-    .to(state.animatedObjects.Name_H.scale, { x: 1, y: 1, z: 1 }, "-=0.7");
+    );
+  if (state.animatedObjects.Dixiclock)
+    t2.to(state.animatedObjects.Dixiclock.scale, { x: 1, y: 1, z: 1 }, "-=0.5");
+  if (state.animatedObjects.Gandalf)
+    t2.to(state.animatedObjects.Gandalf.scale, { x: 1, y: 1, z: 1 }, "-=0.3");
+
+  // Name animation
+  const names = [
+    "Name_K",
+    "Name_E",
+    "Name_V",
+    "Name_I",
+    "Name_N1",
+    "Name_B",
+    "Name_A1",
+    "Name_U",
+    "Name_N2",
+    "Name_A2",
+    "Name_C",
+    "Name_H",
+  ];
+  names.forEach((name, index) => {
+    if (state.animatedObjects[name]) {
+      t2.to(
+        state.animatedObjects[name].scale,
+        { x: 1, y: 1, z: 1 },
+        index === 0 ? "-=0.7" : "-=0.7",
+      );
+    }
+  });
 };
 
 export const updateAnimations = () => {

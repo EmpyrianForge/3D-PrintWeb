@@ -89,7 +89,7 @@ const setupLoadingScreen = () => {
 
 const loadMainModel = () => {
   gltfLoader.load(
-    "/models/Roomi-v1.glb",
+    "/models/RoomiV3.glb",
     (glb) => {
       const createdMaterials = {};
 
@@ -111,7 +111,22 @@ const loadMainModel = () => {
 
           // Register animated objects
           Object.keys(state.animatedObjects).forEach((key) => {
-            if (child.name.includes(key)) {
+            const childName = child.name.toLowerCase();
+            const searchKey = key.toLowerCase();
+
+            // Map new keys to potential old names if not found by new key
+            const alternatives = {
+              "leetcodebutton": ["makerworld", "makerworldbutton"],
+              "bootdevbutton": ["insta", "instabutton"]
+            };
+
+            let matches = childName.includes(searchKey);
+            if (!matches && alternatives[searchKey]) {
+              matches = alternatives[searchKey].some(alt => childName.includes(alt));
+            }
+
+            if (matches) {
+              console.log(`Matched mesh "${child.name}" to state key "${key}"`);
               state.animatedObjects[key] = child;
               // Special case for initial hide
               if (
@@ -163,7 +178,11 @@ const loadMainModel = () => {
             child.material = whiteMaterial;
           } else if (child.name.includes("Screen")) {
             if (!createdMaterials.screen) {
-              createdMaterials.screen = new THREE.MeshPhysicalMaterial({});
+              createdMaterials.screen = new THREE.MeshPhysicalMaterial({
+                color: 0x000000,
+                roughness: 0.1,
+                metalness: 0,
+              });
             }
             child.material = createdMaterials.screen;
           } else {
