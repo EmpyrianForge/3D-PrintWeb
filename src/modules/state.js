@@ -32,6 +32,13 @@ export const state = {
     Name_N2: null,
     Name_U: null,
     Name_V: null,
+    ResinWash: null,
+    ResinWashCure: null,
+    GamingPC: null,
+    Ship: null,
+    Spachtel: null,
+    Bildschirm: null,
+    Monitor_Screen: null,
   },
 
   zAxisFans: [],

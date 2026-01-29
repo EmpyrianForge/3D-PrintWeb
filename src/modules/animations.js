@@ -33,70 +33,61 @@ export const playIntroAnimation = () => {
   }
 
   const t1 = gsap.timeline({
-    defaults: { duration: 1, ease: "power2.out" },
+    defaults: { duration: 0.8, ease: "power2.out" },
   });
 
-  if (state.animatedObjects.Shield_MyWork)
-    t1.to(state.animatedObjects.Shield_MyWork.scale, { x: 1, z: 1, y: 1 });
-  if (state.animatedObjects.Shield_About)
-    t1.to(state.animatedObjects.Shield_About.scale, { x: 1, y: 1, z: 1 }, "-=0.7");
-  if (state.animatedObjects.Shield_Contact)
-    t1.to(
-      state.animatedObjects.Shield_Contact.scale,
-      { x: 1, y: 1, z: 1 },
-      "-=0.7",
-    );
-  if (state.animatedObjects.H2C)
-    t1.to(state.animatedObjects.H2C.scale, { x: 0.3, y: 0.4, z: 0.4 }, "-=0.7");
-  if (state.animatedObjects.H2C_Green)
-    t1.to(state.animatedObjects.H2C_Green.scale, { x: 1, y: 1, z: 1 }, "-=0.7");
+  const animateToOriginal = (obj, delay = "-=0.5", customTimeline = t1) => {
+    if (Array.isArray(obj)) {
+      obj.forEach((o) => animateToOriginal(o, delay, customTimeline));
+      return;
+    }
+    if (obj && obj.userData.originalScale) {
+      customTimeline.to(
+        obj.scale,
+        {
+          x: obj.userData.originalScale.x,
+          y: obj.userData.originalScale.y,
+          z: obj.userData.originalScale.z,
+        },
+        delay,
+      );
+    } else if (obj) {
+      // Fallback for objects without saved original scale
+      customTimeline.to(obj.scale, { x: 1, y: 1, z: 1 }, delay);
+    }
+  };
+
+  animateToOriginal(state.animatedObjects.Shield_MyWork, 0);
+  animateToOriginal(state.animatedObjects.Shield_About);
+  animateToOriginal(state.animatedObjects.Shield_Contact);
+  animateToOriginal(state.animatedObjects.H2C);
+  animateToOriginal(state.animatedObjects.H2C_Green);
 
   const t2 = gsap.timeline({
-    defaults: { duration: 0.8, ease: "back.out(1.7)" },
+    defaults: { duration: 0.6, ease: "back.out(1.7)" },
   });
 
-  if (state.animatedObjects.GitHubFront)
-    t2.to(state.animatedObjects.GitHubFront.scale, { x: 1, y: 1, z: 1 });
-  if (state.animatedObjects.LeetCodeButton)
-    t2.to(
-      state.animatedObjects.LeetCodeButton.scale,
-      { x: 1, y: 1, z: 1 },
-      "-=0.5",
-    );
-  if (state.animatedObjects.BootdevButton)
-    t2.to(
-      state.animatedObjects.BootdevButton.scale,
-      { x: 0.3, y: 0.3, z: 0.3 },
-      "-=0.5",
-    );
-  if (state.animatedObjects.Dixiclock)
-    t2.to(state.animatedObjects.Dixiclock.scale, { x: 1, y: 1, z: 1 }, "-=0.5");
-  if (state.animatedObjects.Gandalf)
-    t2.to(state.animatedObjects.Gandalf.scale, { x: 1, y: 1, z: 1 }, "-=0.3");
+  animateToOriginal(state.animatedObjects.GitHubFront, 0, t2);
+  animateToOriginal(state.animatedObjects.LeetCodeButton, "-=0.4", t2);
+  animateToOriginal(state.animatedObjects.BootdevButton, "-=0.4", t2);
+  animateToOriginal(state.animatedObjects.Dixiclock, "-=0.5", t2);
+  animateToOriginal(state.animatedObjects.Gandalf, "-=0.3", t2);
+  animateToOriginal(state.animatedObjects.ResinWash, "-=0.3", t2);
+  animateToOriginal(state.animatedObjects.ResinWashCure, "-=0.3", t2);
+  animateToOriginal(state.animatedObjects.GamingPC, "-=0.3", t2);
+  animateToOriginal(state.animatedObjects.Ship, "-=0.3", t2);
+  animateToOriginal(state.animatedObjects.Spachtel, "-=0.3", t2);
+  animateToOriginal(state.animatedObjects.Bildschirm, "-=0.3", t2);
+  animateToOriginal(state.animatedObjects.Monitor_Screen, "-=0.3", t2);
 
   // Name animation
   const names = [
-    "Name_K",
-    "Name_E",
-    "Name_V",
-    "Name_I",
-    "Name_N1",
-    "Name_B",
-    "Name_A1",
-    "Name_U",
-    "Name_N2",
-    "Name_A2",
-    "Name_C",
-    "Name_H",
+    "Name_K", "Name_E", "Name_V", "Name_I", "Name_N1",
+    "Name_B", "Name_A1", "Name_U", "Name_N2", "Name_A2",
+    "Name_C", "Name_H",
   ];
-  names.forEach((name, index) => {
-    if (state.animatedObjects[name]) {
-      t2.to(
-        state.animatedObjects[name].scale,
-        { x: 1, y: 1, z: 1 },
-        index === 0 ? "-=0.7" : "-=0.7",
-      );
-    }
+  names.forEach((name) => {
+    animateToOriginal(state.animatedObjects[name], "-=0.7", t2);
   });
 };
 
@@ -113,18 +104,44 @@ export const updateAnimations = () => {
   state.activeHoverObjects.forEach((obj) => {
     const isHovered = state.currentIntersects.some((intersect) => {
       const intersectObj = intersect.object;
+      const intersectName = intersectObj.name.toLowerCase();
+      const intersectParentName = intersectObj.parent?.name?.toLowerCase() || "";
+      const intersectCombined = `${intersectName} ${intersectParentName}`;
+
+      const checkMatch = (targetKey) => {
+        const target = state.animatedObjects[targetKey];
+        if (!target) return false;
+        if (Array.isArray(target)) return target.includes(obj);
+        return obj === target;
+      };
+
       if (intersectObj === obj) return true;
       if (
-        intersectObj.name.includes("H2C") &&
-        (obj === state.animatedObjects.H2C ||
-          obj === state.animatedObjects.H2C_Green)
+        intersectCombined.includes("h2c") &&
+        (checkMatch("H2C") || checkMatch("H2C_Green"))
       )
         return true;
       if (
-        intersectObj.name.includes("ResinFormlabs") &&
-        (obj === state.animatedObjects.ResinFormlabs ||
-          obj === state.animatedObjects.ResinFormlabs_Orange)
+        intersectCombined.includes("resinformlabs") &&
+        (checkMatch("ResinFormlabs") || checkMatch("ResinFormlabs_Orange"))
       )
+        return true;
+      if (
+        intersectCombined.includes("resinwash") &&
+        (checkMatch("ResinWash") || checkMatch("ResinWashCure"))
+      )
+        return true;
+      if (
+        (intersectCombined.includes("monitor_screen") || 
+         intersectCombined.includes("bildschirm")) &&
+        (checkMatch("Monitor_Screen") || checkMatch("Bildschirm"))
+      )
+        return true;
+      if (intersectCombined.includes("boot") && checkMatch("BootdevButton"))
+        return true;
+      if (intersectCombined.includes("leet") && checkMatch("LeetCodeButton"))
+        return true;
+      if (intersectCombined.includes("git") && checkMatch("GitHubFront"))
         return true;
       return false;
     });

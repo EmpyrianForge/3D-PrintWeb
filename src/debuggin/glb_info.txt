@@ -1,0 +1,42 @@
+﻿--- Nodes, Meshes and Materials ---
+Node: 1bake | Mesh: Cube.001 | Mat: 1bake
+Node: Bildschirm__Raycaster_Pointer_Hover | Mesh: Plane.005 | Mat: 2bake
+Node: ResinWash__Raycaster_Pointer_Hover | Mesh: Plane.012 | Mat: 2bake
+Node: 3bake | Mesh: Plane.023 | Mat: 3bake
+Node: 4bake | Mesh: Cube.003 | Mat: 4bake
+Node: Shield_MyWork__Raycaster_Pointer_Hover | Mesh: Cube.011 | Mat: 1bake
+Node: Shield_About__Raycaster_Pointer_Hover | Mesh: Cube.015 | Mat: 1bake
+Node: Shield_Contact__Raycaster_Pointer_Hover | Mesh: Cube.016 | Mat: 1bake
+Node: GitHubFront__Raycaster_Pointer_Hover | Mesh: GitHubFront | Mat: 4bake
+Node: GamingPCGlass__Raycaster_Pointer_Hover | Mesh: Cylinder.001 | Mat: GamingPc_Glass
+Node: H2C_Green__Raycaster_Hover | Mesh: Cube.009 | Mat: Green
+Node: Monitor_Screen__Raycaster_Hover | Mesh: Plane.001 | Mat: Screen
+Node: ResinFormlabs_Orange__Raycaster_Hover | Mesh: Cube.005 | Mat: Orange
+Node: ResinFormlabs__Raycaster_Hover | Mesh: Cube.019 | Mat: 2bake
+Node: H2C__Raycaster_Hover | Mesh: Cube.008 | Mat: 2bake
+Node: GamingPC__Raycaster_Pointer_Hover | Mesh: Cylinder.004 | Mat: 2bake
+Node: ResinWashCure_Blue__Raycaster_Hover | Mesh: Cube.010 | Mat: Blue
+Node: Ship__Raycaster_Pointer_Hover | Mesh: Plane.004 | Mat: 3bake
+Node: Dixi_Glass__Raycaster_Pointer_Hover | Mesh: Circle | Mat: Material.001
+Node: BootdevButton__Raycaster_Pointer_Hover | Mesh: Plane.009 | Mat: Material.003 | Mat: BD
+Node: LeetCodeButton__Raycaster_Hover_Pointer | Mesh: Plane.011 | Mat: Material.021 | Mat: Material.022 | Mat: Material.023 | Mat: Material.007 | Mat: Material.024
+Node: 5bake | Mesh: Plane.034 | Mat: 5bake
+Node: 6bake | Mesh: Cube.002 | Mat: 6bake
+Node: 7bake | Mesh: Cube.004 | Mat: 7-bake
+Node: Dixiclock__Raycaster_Pointer_Hover | Mesh: Cube | Mat: Material.004
+Node: Gandalf__Raycaster_Pointer_Hover | Mesh: gandalf_diorama | Mat: Schwert
+Node: Spachtel__Raycaster_Pointer_Hover | Mesh: Plane | Mat: Material.006
+Node: NameBack | Mesh: Plane.007 | Mat: Material.008
+Node: Name_K__Raycaster_Pointer_Hover | Mesh: Text.008 | Mat: Name_Emission
+Node: Name_E__Raycaster_Pointer_Hover | Mesh: Text.009 | Mat: Material.009
+Node: Name_V__Raycaster_Pointer_Hover | Mesh: Text.010 | Mat: Material.010
+Node: Name_I__Raycaster_Pointer_Hover | Mesh: Text.011 | Mat: Material.011
+Node: Name_N1__Raycaster_Pointer_Hover | Mesh: Text.012 | Mat: Material.012
+Node: Name_B__Raycaster_Pointer_Hover | Mesh: Text.013 | Mat: Name_Emission
+Node: Name_A1__Raycaster_Pointer_Hover | Mesh: Text.020 | Mat: Material.013
+Node: Name_U__Raycaster_Pointer_Hover | Mesh: Text.021 | Mat: Material.014
+Node: Name_N2__Raycaster_Pointer_Hover | Mesh: Text.022 | Mat: Material.015
+Node: Name_A2__Raycaster_Pointer_Hover | Mesh: Text.023 | Mat: Material.016
+Node: Name_C__Raycaster_Pointer_Hover | Mesh: Text.024 | Mat: Material.017
+Node: Name_H__Raycaster_Pointer_Hover | Mesh: Text.025 | Mat: Material.018
+Node: Icon__Banner | Mesh: Plane.008 | Mat: Material.003

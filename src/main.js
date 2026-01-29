@@ -53,27 +53,30 @@ const setupEventListeners = () => {
 
       // Social Links & Modals
       const objName = object.name.toLowerCase();
+      const parentName = object.parent?.name?.toLowerCase() || "";
+      const combined = `${objName} ${parentName}`;
 
       // Social Links
       Object.entries(SOCIAL_LINKS).forEach(([key, url]) => {
         const lowerKey = key.toLowerCase();
-        // Match if the object name includes the key OR its known alternatives
-        const matchesKey = objName.includes(lowerKey);
-        const matchesAlt = (key === "LeetCodeButton" && (objName.includes("makerworld") || objName.includes("leetcode"))) ||
-          (key === "BootdevButton" && (objName.includes("insta") || objName.includes("bootdev")));
+        
+        // Ultra-permissive matching across object and parent names
+        const matches = combined.includes(lowerKey) || 
+                        (key === "LeetCodeButton" && combined.includes("leet")) ||
+                        (key === "BootdevButton" && combined.includes("boot")) ||
+                        (key === "GitHubFront" && combined.includes("git"));
 
-        if (matchesKey || matchesAlt) {
-          console.log(`Opening social link for ${key}: ${url}`);
+        if (matches) {
           window.open(url, "_blank", "noopener,noreferrer");
         }
       });
 
       // Modals
-      if (objName.includes("shield_mywork")) {
+      if (combined.includes("shield_mywork")) {
         showModal(modals.work);
-      } else if (objName.includes("shield_about")) {
+      } else if (combined.includes("shield_about")) {
         showModal(modals.about);
-      } else if (objName.includes("shield_contact")) {
+      } else if (combined.includes("shield_contact")) {
         showModal(modals.contact);
       }
     }
@@ -95,33 +98,57 @@ const updateRaycaster = () => {
     state.currentIntersects.forEach((intersect) => {
       const obj = intersect.object;
       const name = obj.name.toLowerCase();
+      const pName = obj.parent?.name?.toLowerCase() || "";
+      const combined = `${name} ${pName}`;
+
+      const addToActive = (target) => {
+        if (!target) return;
+        if (Array.isArray(target)) {
+          target.forEach((t) => state.activeHoverObjects.add(t));
+        } else {
+          state.activeHoverObjects.add(target);
+        }
+      };
 
       // Handle special groups
-      if (name.includes("h2c")) {
-        if (state.animatedObjects.H2C) state.activeHoverObjects.add(state.animatedObjects.H2C);
-        if (state.animatedObjects.H2C_Green) state.activeHoverObjects.add(state.animatedObjects.H2C_Green);
-      } else if (name.includes("resinformlabs")) {
-        if (state.animatedObjects.ResinFormlabs) state.activeHoverObjects.add(state.animatedObjects.ResinFormlabs);
-        if (state.animatedObjects.ResinFormlabs_Orange) state.activeHoverObjects.add(state.animatedObjects.ResinFormlabs_Orange);
-      } else if (name.includes("_hover")) {
+      if (combined.includes("h2c")) {
+        addToActive(state.animatedObjects.H2C);
+        addToActive(state.animatedObjects.H2C_Green);
+      } else if (combined.includes("resinformlabs")) {
+        addToActive(state.animatedObjects.ResinFormlabs);
+        addToActive(state.animatedObjects.ResinFormlabs_Orange);
+      } else if (combined.includes("resinwash")) {
+        addToActive(state.animatedObjects.ResinWash);
+        addToActive(state.animatedObjects.ResinWashCure);
+      } else if (combined.includes("monitor_screen") || combined.includes("bildschirm")) {
+        addToActive(state.animatedObjects.Monitor_Screen);
+        addToActive(state.animatedObjects.Bildschirm);
+      } else if (combined.includes("boot")) {
+        addToActive(state.animatedObjects.BootdevButton);
+      } else if (combined.includes("leet")) {
+        addToActive(state.animatedObjects.LeetCodeButton);
+      } else if (combined.includes("git")) {
+        addToActive(state.animatedObjects.GitHubFront);
+      } else if (combined.includes("_hover")) {
         state.activeHoverObjects.add(obj);
       } else {
         // Social links and shields without _Hover in raycaster name
         Object.keys(SOCIAL_LINKS).forEach(key => {
           const lowerKey = key.toLowerCase();
-          const matchesKey = name.includes(lowerKey);
-          const matchesAlt = (key === "LeetCodeButton" && (name.includes("makerworld") || name.includes("leetcode"))) ||
-            (key === "BootdevButton" && (name.includes("insta") || name.includes("bootdev")));
+          const matches = combined.includes(lowerKey) ||
+            (key === "LeetCodeButton" && combined.includes("leet")) ||
+            (key === "BootdevButton" && combined.includes("boot")) ||
+            (key === "GitHubFront" && combined.includes("git"));
 
-          if ((matchesKey || matchesAlt) && state.animatedObjects[key]) {
-            state.activeHoverObjects.add(state.animatedObjects[key]);
+          if (matches && state.animatedObjects[key]) {
+            addToActive(state.animatedObjects[key]);
           }
         });
 
         // Shields
         ["Shield_MyWork", "Shield_About", "Shield_Contact"].forEach(shieldKey => {
           const lowerShieldKey = shieldKey.toLowerCase();
-          if (name.includes(lowerShieldKey) && state.animatedObjects[shieldKey]) {
+          if (combined.includes(lowerShieldKey) && state.animatedObjects[shieldKey]) {
             state.activeHoverObjects.add(state.animatedObjects[shieldKey]);
           }
         });
@@ -133,14 +160,19 @@ const updateRaycaster = () => {
   if (!state.isModalOpen) {
     const hasHover = state.currentIntersects.some((intersect) => {
       const name = intersect.object.name.toLowerCase();
+      const pName = intersect.object.parent?.name?.toLowerCase() || "";
+      const combined = `${name} ${pName}`;
+
       const isSocial = Object.keys(SOCIAL_LINKS).some(key => {
         const lowerKey = key.toLowerCase();
-        return name.includes(lowerKey) ||
-          (key === "LeetCodeButton" && (name.includes("makerworld") || name.includes("leetcode"))) ||
-          (key === "BootdevButton" && (name.includes("insta") || name.includes("bootdev")));
+        return combined.includes(lowerKey) ||
+          (key === "LeetCodeButton" && combined.includes("leet")) ||
+          (key === "BootdevButton" && combined.includes("boot")) ||
+          (key === "GitHubFront" && combined.includes("git"));
       });
-      const isShield = name.includes("shield_");
-      return name.includes("_hover") || isSocial || isShield;
+      const isShield = combined.includes("shield_");
+      const isResin = combined.includes("resin");
+      return combined.includes("_hover") || isSocial || isShield || isResin;
     });
     document.body.style.cursor = hasHover ? "pointer" : "default";
   }

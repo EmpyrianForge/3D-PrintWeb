@@ -26,12 +26,12 @@ export const ICON_NAMES = [
 ];
 
 export const TEXTURE_MAP = {
-  First: { day: "/images/1bake.webp" },
-  Second: { day: "/images/2bake.webp" },
-  Third: { day: "/images/3bake.webp" },
-  Fourth: { day: "/images/4bake.webp" },
-  Fifth: { day: "/images/5bakeverbesserungen.webp" },
-  Six: { day: "/images/6bake.webp" },
-  Seven: { day: "/images/7-bake.webp" },
-  Eight: { day: "/images/8bake.webp" },
+  "1bake": { day: "/images/1bake.webp" },
+  "2bake": { day: "/images/2bake.webp" },
+  "3bake": { day: "/images/3bake.webp" },
+  "4bake": { day: "/images/4bake.webp" },
+  "5bake": { day: "/images/5bakeverbesserungen.webp" },
+  "6bake": { day: "/images/6bake.webp" },
+  "7bake": { day: "/images/7-bake.webp" },
+  "8bake": { day: "/images/8bake.webp" },
 };

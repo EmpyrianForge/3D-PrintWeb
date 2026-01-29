@@ -89,45 +89,61 @@ const setupLoadingScreen = () => {
 
 const loadMainModel = () => {
   gltfLoader.load(
-    "/models/RoomiV3.glb",
+    "/models/FinalRoom.glb",
     (glb) => {
       const createdMaterials = {};
 
       glb.scene.traverse((child) => {
         if (child.isMesh) {
           // Hover setup
-          if (child.name.includes("_Hover")) {
-            child.userData.initialScale = new THREE.Vector3().copy(child.scale);
-            child.userData.initialPosition = new THREE.Vector3().copy(
-              child.position,
-            );
-            child.userData.initialRotation = new THREE.Euler().copy(
-              child.rotation,
-            );
-            child.userData.hoverScale = new THREE.Vector3()
-              .copy(child.scale)
-              .multiplyScalar(1.5);
+          const lowerName = child.name.toLowerCase();
+          if (lowerName.includes("_hover")) {
+            child.userData.initialScale = child.scale.clone();
+            child.userData.initialPosition = child.position.clone();
+            child.userData.initialRotation = child.rotation.clone();
+            child.userData.hoverScale = child.scale.clone().multiplyScalar(1.2);
           }
 
           // Register animated objects
-          Object.keys(state.animatedObjects).forEach((key) => {
-            const childName = child.name.toLowerCase();
-            const searchKey = key.toLowerCase();
+          const sortedKeys = Object.keys(state.animatedObjects).sort((a, b) => b.length - a.length);
+          let matchedKey = null;
 
-            // Map new keys to potential old names if not found by new key
+          const parentName = child.parent?.name?.toLowerCase() || "";
+          const combinedSearchName = `${lowerName} ${parentName}`;
+
+          for (const key of sortedKeys) {
+            const searchKey = key.toLowerCase();
             const alternatives = {
-              "leetcodebutton": ["makerworld", "makerworldbutton"],
-              "bootdevbutton": ["insta", "instabutton"]
+              "leetcodebutton": ["makerworld", "makerworldbutton", "leet"],
+              "bootdevbutton": ["insta", "instabutton", "boot"],
+              "resinwashcure": ["resinwashcure_blue"]
             };
 
-            let matches = childName.includes(searchKey);
+            let matches = combinedSearchName.includes(searchKey);
             if (!matches && alternatives[searchKey]) {
-              matches = alternatives[searchKey].some(alt => childName.includes(alt));
+              matches = alternatives[searchKey].some(alt => combinedSearchName.includes(alt));
             }
 
             if (matches) {
-              console.log(`Matched mesh "${child.name}" to state key "${key}"`);
-              state.animatedObjects[key] = child;
+              matchedKey = key;
+              if (!state.animatedObjects[key]) {
+                state.animatedObjects[key] = child;
+              } else if (state.animatedObjects[key] !== child) {
+                if (!Array.isArray(state.animatedObjects[key])) {
+                  state.animatedObjects[key] = [state.animatedObjects[key]];
+                }
+                if (!state.animatedObjects[key].includes(child)) {
+                  state.animatedObjects[key].push(child);
+                }
+              }
+              
+              // Always save original scale for animations and hover
+              child.userData.originalScale = child.scale.clone();
+              child.userData.initialScale = child.scale.clone();
+              child.userData.initialPosition = child.position.clone();
+              child.userData.initialRotation = child.rotation.clone();
+              child.userData.hoverScale = child.scale.clone().multiplyScalar(1.2);
+              
               // Special case for initial hide
               if (
                 !child.name.includes("ResinFormlabs") &&
@@ -136,15 +152,37 @@ const loadMainModel = () => {
               ) {
                 child.scale.set(0, 0, 0);
               } else if (key === "H2C" || key === "H2C_Green") {
-                child.userData.originalScale = child.scale.clone();
                 child.scale.set(0, 0, 0);
               }
+              break; 
             }
-          });
+          }
 
-          // Raycaster objects
-          if (child.name.includes("__Raycaster")) {
-            state.raycasterObjects.push(child);
+          // Raycaster objects - ALWAYS add if it's a social button or has raycaster name
+          const isSocialButton = combinedSearchName.includes("boot") || 
+                                 combinedSearchName.includes("leet") || 
+                                 combinedSearchName.includes("git") ||
+                                 combinedSearchName.includes("github");
+
+          if (lowerName.includes("__raycaster") || parentName.includes("__raycaster") || isSocialButton || matchedKey) {
+            if (lowerName.includes("__raycaster") || parentName.includes("__raycaster") || isSocialButton) {
+                state.raycasterObjects.push(child);
+                
+                // Ensure child is interactive and visible
+                child.visible = true;
+                if (child.geometry) {
+                  child.geometry.computeBoundingBox();
+                  child.geometry.computeBoundingSphere();
+                }
+                
+                // If it didn't get hover data via animatedObjects, give it now
+                if (!child.userData.initialScale) {
+                  child.userData.initialScale = child.scale.clone();
+                  child.userData.initialPosition = child.position.clone();
+                  child.userData.initialRotation = child.rotation.clone();
+                  child.userData.hoverScale = child.scale.clone().multiplyScalar(1.2);
+                }
+            }
           }
 
           // Banner material
@@ -153,7 +191,10 @@ const loadMainModel = () => {
           }
 
           // Materials assignment
-          if (child.name.includes("Water")) {
+          const childName = child.name.toLowerCase();
+          const matName = child.material?.name?.toLowerCase() || "";
+
+          if (childName.includes("water") || matName.includes("water")) {
             if (!createdMaterials.water) {
               createdMaterials.water = new THREE.MeshPhysicalMaterial({
                 color: 0x55b8c8,
@@ -166,17 +207,17 @@ const loadMainModel = () => {
               });
             }
             child.material = createdMaterials.water;
-          } else if (child.name.includes("Glass")) {
+          } else if (childName.includes("glass") || matName.includes("glass")) {
             child.material = glassMaterial;
-          } else if (child.name.includes("Blue")) {
+          } else if (childName.includes("blue") || matName.includes("blue")) {
             child.material = blueMaterial;
-          } else if (child.name.includes("Orange")) {
+          } else if (childName.includes("orange") || matName.includes("orange")) {
             child.material = orangeMaterial;
-          } else if (child.name.includes("Green")) {
+          } else if (childName.includes("green") || matName.includes("green")) {
             child.material = glassGreenMaterial;
-          } else if (child.name.includes("White")) {
+          } else if (childName.includes("white") || matName.includes("white")) {
             child.material = whiteMaterial;
-          } else if (child.name.includes("Screen")) {
+          } else if (childName.includes("screen") || matName.includes("screen")) {
             if (!createdMaterials.screen) {
               createdMaterials.screen = new THREE.MeshPhysicalMaterial({
                 color: 0x000000,
@@ -188,7 +229,8 @@ const loadMainModel = () => {
           } else {
             // Baked textures
             Object.keys(TEXTURE_MAP).forEach((key) => {
-              if (child.name.includes(key)) {
+              const searchKey = key.toLowerCase();
+              if (childName.includes(searchKey) || matName.includes(searchKey)) {
                 if (!createdMaterials[key]) {
                   createdMaterials[key] = new THREE.MeshBasicMaterial({
                     map: loadedTextures.day[key],
@@ -200,10 +242,10 @@ const loadMainModel = () => {
                 child.material = createdMaterials[key];
 
                 // Fans
-                if (child.name.includes("Fan")) {
+                if (childName.includes("fan")) {
                   if (
-                    child.name.includes("Fan_2") ||
-                    child.name.includes("Fan_4")
+                    childName.includes("fan_2") ||
+                    childName.includes("fan_4")
                   ) {
                     state.yAxisFans.push(child);
                   } else {
